@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Karla:400,700&display=swap');
 
-body {
+main{
   font-family: "Karla", sans-serif;
   background-color: #d0d0ce;
   min-height: 100vh; }
