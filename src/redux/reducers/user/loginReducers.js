@@ -3,7 +3,8 @@ import { USER_REQUEST, USER_SUCCESS, USER_FAILURE } from '../../actions/types';
 const initialState = {
     loading: false,
     user: null,
-    error: false
+    error: false,
+    loggedIn: false
 }
 
 export default function (state = initialState, action) {
@@ -18,14 +19,15 @@ export default function (state = initialState, action) {
             localStorage.setItem('QURASALUD_TOKEN', action.payload.token);
             return {
                 loading: false,
+                error: false,
                 user: action.payload,
-                error: false
+                loggedIn: true
             }
         case USER_FAILURE:
             return {
                 ...state,
                 loading: false,
-                error: true
+                error: action.payload
             }
         default:
             return state;

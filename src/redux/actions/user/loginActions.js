@@ -20,7 +20,7 @@ export const userLogin = user => async dispatch => {
 
         dispatch({
             type: USER_FAILURE,
-            payload: 'Las credenciales son incorrectas.'
+            payload: true
         });
         
     }

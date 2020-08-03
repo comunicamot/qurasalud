@@ -6,15 +6,15 @@ import SignUp from '../../components/SignUp';
 import { connect } from 'react-redux';
 import { userLogin } from '../../redux/actions/user/loginActions';
 
-const Login = () => {
-    
+const Login = (props) => {
+
     const [isRegistering, setIsRegistering] = useState(false);
 
     return (
         <div className="bg-primary">
             {
                 !isRegistering ? (
-                    <SignIn setIsRegistering={setIsRegistering} userLogin={userLogin}></SignIn>
+                    <SignIn props={props} setIsRegistering={setIsRegistering} userLogin={userLogin}></SignIn>
                 ) : (
                     <SignUp setIsRegistering={setIsRegistering}></SignUp>
                 )

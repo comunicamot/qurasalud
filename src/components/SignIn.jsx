@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 
 import Loading from '../components/Loading';
 
-const SignIn = ({ userLogin, loading, user, error, setIsRegistering }) => {
+const SignIn = ({ userLogin, loading, user, error, setIsRegistering, loggedIn, props }) => {
 
     const { register, errors, handleSubmit } = useForm();
 
@@ -18,13 +18,17 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering }) => {
         setIsRegistering(true);
     }
 
-    const onSubmit = (user, e) => {
-        userLogin(user);
+    const onSubmit = (userForm, e) => {
+        userLogin(userForm);
     }
 
-    if(loading) {
-        return(
-            <Loading/>
+    if(loggedIn){
+        props.history.push('/perfil');
+    }
+
+    if (loading) {
+        return (
+            <Loading />
         )
     } else {
         return (
@@ -82,7 +86,7 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering }) => {
                                                 {
                                                     error ? <div class="alert alert-dark" role="alert">Las credenciales son incorrectas.</div> : <></>
                                                 }
-    
+
                                                 <div class="form-group"><a class="small" href="#">¿Olvidaste tu contraseña?</a></div>
                                                 <div class="form-group d-flex align-items-center justify-content-between mb-0">
                                                     <div class="custom-control custom-control-solid custom-checkbox">
@@ -93,7 +97,7 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering }) => {
                                                 </div>
                                             </form>
                                         </div>
-    
+
                                         <hr class="my-0" />
                                         <div class="card-body px-5 py-4">
                                             <div class="small text-center">
@@ -130,7 +134,8 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering }) => {
 const mapStateToProps = state => ({
     loading: state.login.loading,
     user: state.login.user,
-    error: state.login.error
+    error: state.login.error,
+    loggedIn: state.login.loggedIn
 });
 const mapDispatchToProps = {
     userLogin
