@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 
 import SignIn from '../../components/SignIn';
 import SignUp from '../../components/SignUp';
@@ -10,11 +10,11 @@ import { Redirect } from 'react-router-dom';
 
 import isLoggedIn from '../../helpers/is_logged_in';
 
-const Login = ({ history }) => {
+const Login = ({history}) => {
 
     const [isRegistering, setIsRegistering] = useState(false);
-    
-    if(!isLoggedIn){
+
+    if (!isLoggedIn) {
         return <Redirect to='/tablero'></Redirect>
     }
 
