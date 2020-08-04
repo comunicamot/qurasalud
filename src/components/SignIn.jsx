@@ -9,8 +9,9 @@ import { userLogin } from '../redux/actions/user/loginActions';
 import { useForm } from 'react-hook-form';
 
 import Loading from '../components/Loading';
+import store from 'store';
 
-const SignIn = ({ userLogin, loading, user, error, setIsRegistering, loggedIn, history }) => {
+const SignIn = ({ userLogin, loading, user, error, setIsRegistering, history }) => {
 
     const { register, errors, handleSubmit } = useForm();
 
@@ -18,11 +19,12 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering, loggedIn, h
         setIsRegistering(true);
     }
 
-    const onSubmit = (userForm, e) => {
-        userLogin(userForm);
+    const onSubmit = (data, e) => {
+        userLogin(data);
     }
-
-    if(loggedIn){
+    
+    if(user){
+        store.set('loggedIn', true);
         history.push('/tablero');
     }
 
@@ -134,8 +136,7 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering, loggedIn, h
 const mapStateToProps = state => ({
     loading: state.login.loading,
     user: state.login.user,
-    error: state.login.error,
-    loggedIn: state.login.loggedIn
+    error: state.login.error
 });
 const mapDispatchToProps = {
     userLogin

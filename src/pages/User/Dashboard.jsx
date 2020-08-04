@@ -8,17 +8,18 @@ import Account from '../../components/Account';
 
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+import isLoggedIn from '../../helpers/is_logged_in';
 
-const Dashboard = ({ loggedIn }) => {
+const Dashboard = ({history}) => {
 
-  if (loggedIn) {
-    return <Redirect to='/tablero'></Redirect>
+  if(!isLoggedIn()){
+    return <Redirect to='/'></Redirect>
   }
-
+  
   return (
     <>
       <div className="nav-fixed">
-        <Navbar />
+        <Navbar history={history} />
         <div id="layoutSidenav">
           <Sidenav></Sidenav>
           <Account></Account>
@@ -28,8 +29,4 @@ const Dashboard = ({ loggedIn }) => {
   )
 }
 
-const mapStateToProps = state => ({
-  loggedIn: state.login.loggedIn
-})
-
-export default connect(mapStateToProps)(Dashboard);
+export default Dashboard;

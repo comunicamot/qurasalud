@@ -8,12 +8,14 @@ import { userLogin } from '../../redux/actions/user/loginActions';
 
 import { Redirect } from 'react-router-dom';
 
-const Login = ({ history, loggedIn }) => {
+import isLoggedIn from '../../helpers/is_logged_in';
+
+const Login = ({ history }) => {
 
     const [isRegistering, setIsRegistering] = useState(false);
-
-    if (loggedIn) {
-        <Redirect to='/tablero'></Redirect>
+    
+    if(!isLoggedIn){
+        return <Redirect to='/tablero'></Redirect>
     }
 
     return (
@@ -29,12 +31,4 @@ const Login = ({ history, loggedIn }) => {
     )
 }
 
-const mapStateToProps = state => ({
-    loggedIn: state.login.loggedIn
-})
-
-const mapDispatchToProps = {
-    userLogin
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;
