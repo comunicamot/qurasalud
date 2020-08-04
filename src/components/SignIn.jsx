@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 
 import Loading from '../components/Loading';
 
-const SignIn = ({ userLogin, loading, user, error, setIsRegistering, loggedIn, props }) => {
+const SignIn = ({ userLogin, loading, user, error, setIsRegistering, loggedIn, history }) => {
 
     const { register, errors, handleSubmit } = useForm();
 
@@ -23,7 +23,7 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering, loggedIn, p
     }
 
     if(loggedIn){
-        props.history.push('/perfil');
+        history.push('/tablero');
     }
 
     if (loading) {

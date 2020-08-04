@@ -6,21 +6,35 @@ import SignUp from '../../components/SignUp';
 import { connect } from 'react-redux';
 import { userLogin } from '../../redux/actions/user/loginActions';
 
-const Login = (props) => {
+import { Redirect } from 'react-router-dom';
+
+const Login = ({ history, loggedIn }) => {
 
     const [isRegistering, setIsRegistering] = useState(false);
+
+    if (loggedIn) {
+        <Redirect to='/tablero'></Redirect>
+    }
 
     return (
         <div className="bg-primary">
             {
                 !isRegistering ? (
-                    <SignIn props={props} setIsRegistering={setIsRegistering} userLogin={userLogin}></SignIn>
+                    <SignIn history={history} setIsRegistering={setIsRegistering} userLogin={userLogin}></SignIn>
                 ) : (
-                    <SignUp setIsRegistering={setIsRegistering}></SignUp>
-                )
+                        <SignUp setIsRegistering={setIsRegistering}></SignUp>
+                    )
             }
         </div>
     )
 }
 
-export default connect (null, {userLogin})(Login);
+const mapStateToProps = state => ({
+    loggedIn: state.login.loggedIn
+})
+
+const mapDispatchToProps = {
+    userLogin
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
