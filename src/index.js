@@ -21,14 +21,15 @@ import store from './redux/store';
 
 import {Provider} from 'react-redux';
 
+
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <Router>
         <Switch>
           <Route exact path="/" component={Login}></Route>
-          <Route exact path="/perfil" component={Dashboard}></Route>
-          <Redirect to="/perfil" />
+          <Route exact path="/tablero" component={Dashboard}></Route>
         </Switch>
       </Router>
     </Provider>

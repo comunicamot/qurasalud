@@ -3,8 +3,7 @@ import { USER_REQUEST, USER_SUCCESS, USER_FAILURE } from '../../actions/types';
 const initialState = {
     loading: false,
     user: null,
-    error: false,
-    loggedIn: false
+    error: false
 }
 
 export default function (state = initialState, action) {
@@ -20,12 +19,11 @@ export default function (state = initialState, action) {
             return {
                 loading: false,
                 error: false,
-                user: action.payload,
-                loggedIn: true
+                user: action.payload
             }
         case USER_FAILURE:
             return {
-                ...state,
+                user: null,
                 loading: false,
                 error: action.payload
             }
