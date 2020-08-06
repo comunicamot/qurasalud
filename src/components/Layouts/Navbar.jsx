@@ -3,9 +3,10 @@ import store from 'store';
 
 const Navbar = ({history}) => {
 
-    const handleLogout = (history) => {
-        console.log("logout bye bye");
+    const handleLogout = history => {
+        console.log('Bye bye');
         store.remove('loggedIn');
+        localStorage.removeItem('QURASALUD_TOKEN');
         history.push('/');
     }
     

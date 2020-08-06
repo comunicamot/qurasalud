@@ -1,31 +1,38 @@
 import React, { useState, useEffect } from 'react';
-
-import logo from '../logo.svg';
-import img1 from '../images/image1.jpg';
-
+import Loading from './Loading';
 import { connect } from 'react-redux';
-import { userLogin } from '../redux/actions/user/loginActions';
-
-import { useForm } from 'react-hook-form';
-
-import Loading from '../components/Loading';
+import { userLogin } from '../../redux/actions/user/loginActions';
 import store from 'store';
+import isLoggedIn from '../../helpers/is_logged_in';
+import { Redirect } from 'react-router-dom';
+import Footer from './Footer'
 
-const SignIn = ({ userLogin, loading, user, error, setIsRegistering, history }) => {
+const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) => {
 
-    const { register, errors, handleSubmit } = useForm();
+    const [formData, setFormData] = useState({
+        email: "",
+        password: ""
+    });
+
+    const onSubmit = e => {
+        e.preventDefault();
+        userLogin(formData);
+    }
+
+    if(user){
+        store.set('loggedIn', true);
+        localStorage.setItem('TOKEN', user.token);
+        localStorage.setItem('USER', JSON.stringify(user.user[0]))
+        localStorage.setItem('PATIENT', JSON.stringify(user.paciente[0]))
+        history.push('/tablero');
+    }
+
+    const onChange = e => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
 
     const btnSignUp = () => {
         setIsRegistering(true);
-    }
-
-    const onSubmit = (data, e) => {
-        userLogin(data);
-    }
-    
-    if(user){
-        store.set('loggedIn', true);
-        history.push('/tablero');
     }
 
     if (loading) {
@@ -48,45 +55,19 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering, history }) 
                                         </div>
                                         <hr class="my-0" />
                                         <div class="card-body p-5">
-                                            <form onSubmit={handleSubmit(onSubmit)}>
+                                            <form onSubmit={onSubmit}>
                                                 <div class="form-group">
                                                     <label class="text-gray-600 small" for="email">Correo electrónico</label>
-                                                    <input class="form-control form-control-solid py-4" type="text" placeholder="" aria-label="Email Address" aria-describedby="email" name="email" ref={
-                                                        register({
-                                                            required: {
-                                                                value: true,
-                                                                message: "Por favor, ingrese su correo electronico"
-                                                            }
-                                                        })
-                                                    } />
+                                                    <input class="form-control form-control-solid py-4" type="email" placeholder="" aria-label="Email Address" aria-describedby="email" name="email" onChange={onChange} required/>
                                                 </div>
-                                                {
-                                                    errors?.email?.message ? (
-                                                        <div class="alert alert-dark" role="alert">
-                                                            {errors?.email?.message}
-                                                        </div>
-                                                    ) : <></>
-                                                }
+
                                                 <div class="form-group">
                                                     <label class="text-gray-600 small" for="password">Contraseña</label>
-                                                    <input class="form-control form-control-solid py-4" type="password" placeholder="" aria-label="Password" aria-describedby="password" name="password" ref={
-                                                        register({
-                                                            required: {
-                                                                value: true,
-                                                                message: "Por favor, ingrese su contraseña"
-                                                            }
-                                                        })
-                                                    } />
+                                                    <input class="form-control form-control-solid py-4" type="password" placeholder="" aria-label="Password" aria-describedby="password" name="password" onChange={onChange} required/>
                                                 </div>
+
                                                 {
-                                                    errors?.password?.message ? (
-                                                        <div class="alert alert-dark" role="alert">
-                                                            {errors?.password?.message}
-                                                        </div>
-                                                    ) : <></>
-                                                }
-                                                {
-                                                    error ? <div class="alert alert-dark" role="alert">Las credenciales son incorrectas.</div> : <></>
+                                                    error ? <div class="alert alert-dark" role="alert">Hubo un error al ingresar con la cuenta. Asegurese de que sea un usuario existente.</div> : <></>
                                                 }
 
                                                 <div class="form-group"><a class="small" href="#">¿Olvidaste tu contraseña?</a></div>
@@ -104,7 +85,7 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering, history }) 
                                         <div class="card-body px-5 py-4">
                                             <div class="small text-center">
                                                 ¿Nuevo usuario?
-                                                <a href="#" onClick={() => { btnSignUp() }}> Crear una cuenta!</a>
+                                                <a href="javascript:void(0)" onClick={btnSignUp}> Crear una cuenta!</a>
                                             </div>
                                         </div>
                                     </div>
@@ -113,24 +94,10 @@ const SignIn = ({ userLogin, loading, user, error, setIsRegistering, history }) 
                         </div>
                     </main>
                 </div>
-                <div id="layoutAuthentication_footer">
-                    <footer class="footer mt-auto footer-dark">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-md-6 small">Copyright © Qurasalud 2020</div>
-                                <div class="col-md-6 text-md-right small">
-                                    <a href="#!">Politicas de privacidad</a>
-                                    ·
-                                    <a href="#!">Terminos &amp; Condiciones</a>
-                                </div>
-                            </div>
-                        </div>
-                    </footer>
-                </div>
+                <Footer/>
             </div>
         )
     }
-
 }
 
 const mapStateToProps = state => ({

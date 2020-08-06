@@ -7,7 +7,6 @@ const initialState = {
 }
 
 export default function (state = initialState, action) {
-
     switch (action.type) {
         case USER_REQUEST:
             return {
@@ -15,7 +14,6 @@ export default function (state = initialState, action) {
                 loading: true,
             }
         case USER_SUCCESS:
-            localStorage.setItem('QURASALUD_TOKEN', action.payload.token);
             return {
                 loading: false,
                 error: false,

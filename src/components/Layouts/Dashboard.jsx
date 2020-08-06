@@ -2,19 +2,15 @@ import React, { useState, useEffect } from 'react';
 
 import '../../css/styles.css';
 
-import Navbar from '../../components/Navbar';
-import Sidenav from '../../components/Sidenav';
-import Account from '../../components/Account';
+import Navbar from './Navbar';
+import Sidenav from './Sidenav';
+import Account from '../User/Account';
 
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import isLoggedIn from '../../helpers/is_logged_in';
 
 const Dashboard = ({history}) => {
-
-  if(!isLoggedIn()){
-    return <Redirect to='/'></Redirect>
-  }
   
   return (
     <>
