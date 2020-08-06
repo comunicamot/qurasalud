@@ -23,6 +23,7 @@
     "store": "^2.0.12",
     "sweetalert2": "^9.17.1"
   },
+  "homepage": "http://3.15.177.121/qurasalud",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
