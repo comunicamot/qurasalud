@@ -1,9 +1,10 @@
-import { USER_REQUEST, USER_SUCCESS, USER_FAILURE } from '../../actions/types';
+import { USER_REQUEST, USER_SUCCESS, USER_FAILURE, USER_SIGNUP } from '../../actions/types';
 
 const initialState = {
     loading: false,
     user: null,
-    error: false
+    error: false,
+    signup: false
 }
 
 export default function (state = initialState, action) {
@@ -24,6 +25,13 @@ export default function (state = initialState, action) {
                 user: null,
                 loading: false,
                 error: action.payload
+            }
+        case USER_SIGNUP:
+            return {
+                loading: false,
+                user: null,
+                error: false,
+                signup: action.payload
             }
         default:
             return state;

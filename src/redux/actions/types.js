@@ -1,4 +1,13 @@
 export const USER_REQUEST = 'USER_REQUEST';
 export const USER_SUCCESS = 'USER_SUCCESS';
 export const USER_FAILURE = 'USER_FAILURE';
+export const USER_SIGNUP = 'USER_SIGNUP';
 
+export const AGREGAR_DOCTOR = 'AGREGAR_DOCTOR';
+export const MOSTRAR_DOCTORES = 'MOSTRAR_DOCTORES';
+export const ELIMINAR_DOCTOR = 'ELIMINAR_DOCTOR';
+export const EDITAR_DOCTOR = 'EDITAR_DOCTOR';
+export const MOSTRAR_DOCTOR = 'MOSTRAR_DOCTOR';
+
+export const LOADING = 'LOADING';
+export const ERROR = 'ERROR';

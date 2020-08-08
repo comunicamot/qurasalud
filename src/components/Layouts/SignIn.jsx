@@ -19,12 +19,17 @@ const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) 
         userLogin(formData);
     }
 
-    if(user){
+    if (user) {
         store.set('loggedIn', true);
         localStorage.setItem('TOKEN', user.token);
-        localStorage.setItem('USER', JSON.stringify(user.user[0]))
-        localStorage.setItem('PATIENT', JSON.stringify(user.paciente[0]))
+        localStorage.setItem('USER', JSON.stringify(user.user[0]));
+
+        if (user.paciente) {
+            localStorage.setItem('PATIENT', JSON.stringify(user.paciente[0]));
+        }
+        
         history.push('/tablero');
+
     }
 
     const onChange = e => {
@@ -58,12 +63,12 @@ const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) 
                                             <form onSubmit={onSubmit}>
                                                 <div class="form-group">
                                                     <label class="text-gray-600 small" for="email">Correo electrónico</label>
-                                                    <input class="form-control form-control-solid py-4" type="email" placeholder="" aria-label="Email Address" aria-describedby="email" name="email" onChange={onChange} required/>
+                                                    <input class="form-control form-control-solid py-4" type="email" placeholder="" aria-label="Email Address" aria-describedby="email" name="email" onChange={onChange} required />
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label class="text-gray-600 small" for="password">Contraseña</label>
-                                                    <input class="form-control form-control-solid py-4" type="password" placeholder="" aria-label="Password" aria-describedby="password" name="password" onChange={onChange} required/>
+                                                    <input class="form-control form-control-solid py-4" type="password" placeholder="" aria-label="Password" aria-describedby="password" name="password" onChange={onChange} required />
                                                 </div>
 
                                                 {
@@ -94,7 +99,7 @@ const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) 
                         </div>
                     </main>
                 </div>
-                <Footer/>
+                <Footer />
             </div>
         )
     }

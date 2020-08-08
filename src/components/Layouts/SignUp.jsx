@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import Loading from './Loading';
 import Footer from './Footer';
+
 import { connect } from 'react-redux';
 import { userSignUp } from '../../redux/actions/user/loginActions';
 import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+const MySwal = withReactContent(Swal);
 
-const SignUp = ({ history, setIsRegistering, userSignUp, loading, user, error }) => {
+const SignUp = ({ history, setIsRegistering, userSignUp, loading, signup, error }) => {
 
     const [formError, setFormError] = useState(false);
 
@@ -24,7 +27,7 @@ const SignUp = ({ history, setIsRegistering, userSignUp, loading, user, error })
     const btnSignIn = () => {
         setIsRegistering(false);
     }
-    
+
     const onSubmit = e => {
         e.preventDefault();
         if (formData.password !== formData.confirmPassword) {
@@ -42,18 +45,24 @@ const SignUp = ({ history, setIsRegistering, userSignUp, loading, user, error })
                 peso: formData.weight
             }
             userSignUp(user);
-            console.log("Usuario registrado");
         }
-        
     }
 
     const onChange = e => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
+    if (signup) {
+        MySwal.fire({
+            title: '<strong>Se le ha enviado un enlace de confirmación a su correo electrónico.</strong>',
+            icon: 'success',
+            html: `<p>a ${formData.email}</p>`
+        });
+    }
+
     if (loading) {
-        return <Loading/>
-    }else{
+        return <Loading />
+    } else {
         return (
             <div id="layoutAuthentication">
                 <div id="layoutAuthentication_content">
@@ -155,7 +164,7 @@ const SignUp = ({ history, setIsRegistering, userSignUp, loading, user, error })
                                         <div class="card-body px-5 py-4">
                                             <div class="small text-center">
                                                 ¿Ya tiene una cuenta?
-                                                <a href="javascript:void(0)" onClick={()=>btnSignIn()}> Ingresar!</a>
+                                                <a href="javascript:void(0)" onClick={() => btnSignIn()}> Ingresar!</a>
                                             </div>
                                         </div>
                                     </div>
@@ -166,14 +175,14 @@ const SignUp = ({ history, setIsRegistering, userSignUp, loading, user, error })
                 </div>
                 <Footer />
             </div>
-        
+
         )
     }
 }
 
 const mapStateToProps = state => ({
     loading: state.login.loading,
-    user: state.login.user,
+    signup: state.login.signup,
     error: state.login.error
 })
 
