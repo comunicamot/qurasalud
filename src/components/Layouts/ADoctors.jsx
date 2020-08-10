@@ -1,14 +1,7 @@
 import React, {useEffect} from 'react';
 import ATable from './ATable'
-import { connect } from 'react-redux';
-import { mostrarDoctores } from '../../redux/actions/doctorsActions';
 
-const ADoctors = ({loading, doctors, error, mostrarDoctores}) => {
-
-    useEffect(()=>{
-        mostrarDoctores();
-    }, []);
-
+const ADoctors = () => {
     return(
         <main>
             <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
@@ -28,12 +21,12 @@ const ADoctors = ({loading, doctors, error, mostrarDoctores}) => {
                     </header>
                     <div class="container mt-n10">
                         <div class="card mb-4">
-                            <div class="card-header">Extended DataTables</div>
+                            <div class="card-header">Tabla de datos extendida</div>
                             <div class="card-body">
                                 <div class="datatable">
                                     <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
 
-                                    <ATable doctors={doctors} ></ATable>
+                                    <ATable ></ATable>
                                     
                                     </div>
                                 </div>
@@ -45,15 +38,5 @@ const ADoctors = ({loading, doctors, error, mostrarDoctores}) => {
     );
 }
 
-const mapStateToProps = state => ({
-    doctors: state.doctors.doctors,
-    loading: state.doctors.loading,
-    error: state.doctors.error
-});
-
-const mapDispatchToProps = {
-    mostrarDoctores
-}
-
-export default connect (mapStateToProps, mapDispatchToProps)(ADoctors);
+export default ADoctors;
 
