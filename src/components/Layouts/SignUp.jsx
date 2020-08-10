@@ -8,7 +8,7 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 const MySwal = withReactContent(Swal);
 
-const SignUp = ({ history, setIsRegistering, userSignUp, loading, signup, error }) => {
+const SignUp = ({ history, setIsRegistering, userSignUp, loading_signup, email_verification, error_signup }) => {
 
     const [formError, setFormError] = useState(false);
 
@@ -52,15 +52,7 @@ const SignUp = ({ history, setIsRegistering, userSignUp, loading, signup, error 
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
-    if (signup) {
-        MySwal.fire({
-            title: '<strong>Se le ha enviado un enlace de confirmación a su correo electrónico.</strong>',
-            icon: 'success',
-            html: `<p>a ${formData.email}</p>`
-        });
-    }
-
-    if (loading) {
+    if (loading_signup) {
         return <Loading />
     } else {
         return (
@@ -157,7 +149,21 @@ const SignUp = ({ history, setIsRegistering, userSignUp, loading, signup, error 
                                                 formError ? <div class="alert alert-dark" role="alert">Las contraseñas no coinciden.</div> : <></>
                                             }
                                             {
-                                                error ? <div class="alert alert-dark" role="alert">No se pudo registrar el usuario. Asegurese de que el correo electrónico no esté en uso.</div> : <></>
+                                                error_signup ? <div class="alert alert-dark" role="alert">No se pudo registrar el usuario. Asegurese de que el correo electrónico no esté en uso.</div> : <></>
+                                            }
+                                            {
+                                                email_verification ? (<div class="alert alert-primary alert-icon" role="alert">
+                                                <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </button>
+                                                <div class="alert-icon-aside">
+                                                    <i class="far fa-flag"></i>
+                                                </div>
+                                                <div class="alert-icon-content">
+                                                    <h6 class="alert-heading">Se le ha enviado un correo de confirmación</h6>
+                                                    Al siguiente correo electrónico {email_verification}
+                                                </div>
+                                            </div>) : <></>
                                             }
                                         </div>
                                         <hr class="my-0" />
@@ -181,9 +187,9 @@ const SignUp = ({ history, setIsRegistering, userSignUp, loading, signup, error 
 }
 
 const mapStateToProps = state => ({
-    loading: state.login.loading,
-    signup: state.login.signup,
-    error: state.login.error
+    loading_signup: state.login.loading_signup,
+    email_verification: state.login.email_verification,
+    error_signup: state.login.error_signup
 })
 
 const mapDispatchToProps = {

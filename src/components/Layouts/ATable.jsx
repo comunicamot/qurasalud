@@ -1,22 +1,31 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import deleteIcon from '../../images/delete-icon.svg';
 import Select from 'react-select';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { mostrarDoctor } from '../../redux/actions/doctorsActions';
 
-const ATable = ({ doctors }) => {
+const ATable = ({ doctors, mostrarDoctor, doctor_details }) => {
 
+    useEffect(()=>{
+
+        console.log("### FROM THE ATABLE ###");
+        console.log(doctors);
+        console.log(doctor_details);
+
+    }, [doctors, doctor_details]);
+
+    const getDetailDoctor = (id) => {
+        console.log("### WE HAVE TO GET THE ID ###");
+        console.log(id);
+        mostrarDoctor(id);
+    }
+    
     return (
         <>
             <div class="row">
-                {/* <div className="col-sm-12 col-md-6">
-                    
-                </div>
-                <div className="col-sm-12 col-md-6">
-                    <div className="form-inline">
-                    <div id="dataTable_filter" class="dataTables_filter"><label>Search:<input type="search" class="form-control form-control-sm" placeholder="" aria-controls="dataTable"/></label></div>
-                    </div>
-                </div> */}
                 <div class="col-sm-4 col-4">
-                <div className="form-inline">
+                    <div className="form-inline">
                         <div className="form-group mb-3">
                             <label for="">Buscar: </label>
                             <select name="dataTable_length" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm ml-1">
@@ -28,8 +37,8 @@ const ATable = ({ doctors }) => {
                     </div>
                 </div>
                 <div class="col-sm-4 col-4">
-                <div className="form-inline">
-                <div className="form-group mb-3">
+                    <div className="form-inline">
+                        <div className="form-group mb-3">
                             <label for="">Buscar: </label>
                             <select name="dataTable_length" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm ml-1">
                                 <option value="cardiologia">Cardiologia</option>
@@ -41,7 +50,8 @@ const ATable = ({ doctors }) => {
                 </div>
             </div>
 
-            <div class="row"><div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-12">
                 <table class="table table-bordered table-hover dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style={{ width: "100%" }}>
                     <thead>
                         <tr role="row">
@@ -54,31 +64,31 @@ const ATable = ({ doctors }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr role="row" class="odd">
-                            <td class="sorting_1">Airi Satou</td>
-                            <td>Accountant</td>
-                            <td>Tokyo</td>
-                            <td>$162,700</td>
-                            <td><div class="badge badge-primary badge-pill">Full-time</div></td>
+                        {
+                            doctors.map((doctor) =>  <tr role="row" class="even">
+                            <td class="sorting_1"> {doctor.doctor.name} {doctor.doctor.last_name} </td>
+                            <td> {doctor.doctor.tuition} </td>
+                            <td> {doctor.specialty.name} </td>
+                            <td> {doctor.doctor.email} </td>
+                            <td> {doctor.doctor.phone} </td>
                             <td>
-                                <button class="btn btn-datatable btn-icon btn-transparent-dark mr-2"> <img src={deleteIcon} alt="icon" /> </button>
+                                <Link onClick={()=>{getDetailDoctor(doctor.doctor.id)}}>Ver detalles</Link>
                             </td>
-                        </tr>
-                        <tr role="row" class="even">
-                            <td class="sorting_1">Angelica Ramos</td>
-                            <td>Chief Executive Officer (CEO)</td>
-                            <td>London</td>
-                            <td>$1,200,000</td>
-                            <td><div class="badge badge-primary badge-pill">Full-time</div></td>
-                            <td>
-                                <button class="btn btn-datatable btn-icon btn-transparent-dark mr-2"> <img src={deleteIcon} alt="icon" /> </button>
-                            </td>
-                        </tr>
+                        </tr> )
+                        }
                     </tbody>
                 </table>
-            </div></div>
+            </div>
+            <div className="col-sm-12">
+                    <button >Agregar</button>
+            </div>
+            </div>
         </>
     )
 }
 
-export default ATable;
+const mapStateToProps = state => ({
+    doctor_details: state.doctors.doctor_details
+})
+
+export default connect(mapStateToProps, {mostrarDoctor})(ATable);

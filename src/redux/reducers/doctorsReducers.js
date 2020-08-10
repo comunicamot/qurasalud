@@ -3,7 +3,8 @@ import { AGREGAR_DOCTOR, MOSTRAR_DOCTORES, MOSTRAR_DOCTOR, ERROR, LOADING, EDITA
 const initialState = {
     loading: false,
     doctors: [],
-    error: false
+    error: false,
+    doctor_details: [],
 }
 
 export default function (state = initialState, action) {
@@ -11,7 +12,7 @@ export default function (state = initialState, action) {
         case LOADING:
             return {
                 ...state,
-                loading: action.payload
+                loading: true
             }
         case MOSTRAR_DOCTORES:
             return {
@@ -22,7 +23,6 @@ export default function (state = initialState, action) {
         case AGREGAR_DOCTOR:
             return {
                 loading: false,
-                
             }
         case ERROR:
             return {
@@ -30,6 +30,12 @@ export default function (state = initialState, action) {
                 doctors: [],
                 error: true
             }
+        case MOSTRAR_DOCTOR: return {
+            ...state,
+            loading: false,
+            error: false,
+            doctor_details: action.payload
+        }
         default:
             return state;
     }

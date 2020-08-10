@@ -13,61 +13,56 @@ import AMedicalAppoHist from '../Layouts/AMedicalAppoHist';
 import APatients from '../Layouts/APatients';
 import ASpecialities from '../Layouts/ASpecialities';
 import ADoctorsHours from '../Layouts/ADoctorsHours';
+import { userLogout } from '../../redux/actions/user/loginActions';
 
-const Dashboard = ({ history }) => {
+const Dashboard = ({ history, userLogout }) => {
 
     const [optionSidenav, setOptionSidenav] = useState(1);
     const [user, setUser] = useState({
-        id: 0,
-        email: ""
+        id: null,
+        email: null
     });
     const [patient, setPatient] = useState({
-        id: 0,
-        name: "",
-        last_name: "",
-        phone: "",
-        address: "",
-        talla: 0,
-        peso: 0
+        id: null,
+        name: null,
+        last_name: null,
+        phone: null,
+        address: null,
+        talla: null,
+        peso: null
     });
-
-    const handleOptionSidenav = (opt) => {
-        setOptionSidenav(opt);
-    }
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
-
         if (localStorage.getItem('PATIENT')) {
             const patient = JSON.parse(localStorage.getItem('PATIENT'));
             setPatient(patient);
             console.log("### HOOK PATIENT ###");
             console.log(patient);
-
         }
-
     }, []);
-
-    const handleLogout = () => {
-        store.remove('loggedIn');
-        localStorage.removeItem('TOKEN');
-        localStorage.removeItem('USER');
-
-        if(patient){
-            localStorage.removeItem('PATIENT');
-        } else {
-            localStorage.removeItem('ADMIN')
-        }
-
-        history.push('/login');
-    }
 
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
     }
 
-    if(patient.email){
+    const handleOptionSidenav = (opt) => {
+        setOptionSidenav(opt);
+    }
+
+    const handleLogout = () => {
+        store.remove('loggedIn');
+        userLogout();
+        localStorage.removeItem('TOKEN');
+        localStorage.removeItem('USER');
+        if(localStorage.getItem('PATIENT')){
+            localStorage.removeItem('PATIENT');
+        }
+        history.push('/login');
+    }
+
+    if(patient.name){
         return (
             <>
                 <div className="nav-fixed">
@@ -466,4 +461,4 @@ const mapStateToProps = state => ({
     user: state.login.user
 });
 
-export default connect(mapStateToProps)(Dashboard);
+export default connect(mapStateToProps, {userLogout})(Dashboard);

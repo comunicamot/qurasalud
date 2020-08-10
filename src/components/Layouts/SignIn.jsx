@@ -7,7 +7,7 @@ import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect } from 'react-router-dom';
 import Footer from './Footer'
 
-const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) => {
+const SignIn = ({ history, userLogin, loading_signin, user, error_signin, setIsRegistering }) => {
 
     const [formData, setFormData] = useState({
         email: "",
@@ -27,7 +27,6 @@ const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) 
         if (user.paciente) {
             localStorage.setItem('PATIENT', JSON.stringify(user.paciente[0]));
         }
-        
         history.push('/tablero');
 
     }
@@ -40,7 +39,7 @@ const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) 
         setIsRegistering(true);
     }
 
-    if (loading) {
+    if (loading_signin) {
         return (
             <Loading />
         )
@@ -72,7 +71,7 @@ const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) 
                                                 </div>
 
                                                 {
-                                                    error ? <div class="alert alert-dark" role="alert">Hubo un error al ingresar con la cuenta. Asegurese de que sea un usuario existente.</div> : <></>
+                                                    error_signin ? <div class="alert alert-dark" role="alert">Hubo un error al ingresar con la cuenta. Asegurese de que sea un usuario existente.</div> : <></>
                                                 }
 
                                                 <div class="form-group"><a class="small" href="#">¿Olvidaste tu contraseña?</a></div>
@@ -106,9 +105,9 @@ const SignIn = ({ history, userLogin, loading, user, error, setIsRegistering }) 
 }
 
 const mapStateToProps = state => ({
-    loading: state.login.loading,
+    loading_signin: state.login.loading_signin,
     user: state.login.user,
-    error: state.login.error
+    error_signin: state.login.error_signin
 });
 const mapDispatchToProps = {
     userLogin
