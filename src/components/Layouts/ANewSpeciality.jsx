@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import ATableSpecialities from './ATableSpecialities'
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { agregarDoctor } from '../../redux/actions/doctorsActions';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
 import adminPng from '../../images/admin.png'
 import store from 'store'
-import { connect } from 'react-redux';
 import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
+import Select from 'react-select';
+import { agregarEspecialidad } from '../../redux/actions/specialitiesActions';
 
-const ASpecialities = ({ history }) => {
+const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
 
+    const [checked, setChecked] = useState(false);
+    const [selectedSpecialities, setSelectedSpecialities] = useState(1);
+    const [formData, setFormData] = useState({
+        name: null,
+        price: null
+    })
     const [user, setUser] = useState({
         id: null,
         email: null
@@ -18,7 +26,7 @@ const ASpecialities = ({ history }) => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
     }, []);
-
+    
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
     }
@@ -29,6 +37,17 @@ const ASpecialities = ({ history }) => {
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
         history.push('/login');
+    }
+
+    const onChange = e => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    const onSubmit = e => {
+        e.preventDefault();
+        // console.log(formData);
+        agregarEspecialidad(formData);
+        history.push('/especialidades');
     }
 
     return (
@@ -151,12 +170,11 @@ const ASpecialities = ({ history }) => {
 
                 <div id="layoutSidenav">
                     <div id="layoutSidenav_nav">
-
                         <SidenavMenu></SidenavMenu>
-
                     </div>
 
                     <div id="layoutSidenav_content">
+
                         <main>
                             <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
                                 <div class="container">
@@ -164,10 +182,10 @@ const ASpecialities = ({ history }) => {
                                         <div class="row align-items-center justify-content-between">
                                             <div class="col-auto mt-4">
                                                 <h1 class="page-header-title">
-                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg></div>
+                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layout"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
                                             Especialidades
                                         </h1>
-                                                <div class="page-header-subtitle">Mantenimiento de las especialidades que tienen los médicos</div>
+                                                <div class="page-header-subtitle">Mantenimiento de especialidades</div>
                                             </div>
                                         </div>
                                     </div>
@@ -175,26 +193,29 @@ const ASpecialities = ({ history }) => {
                             </header>
                             <div class="container mt-n10">
                                 <div class="card mb-4">
-                                    <div class="card-header">Tabla de datos extendida</div>
+                                    <div class="card-header">Agregar un nuevo médico</div>
                                     <div class="card-body">
-                                        <div class="datatable">
-                                            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
-
-                                                <ATableSpecialities></ATableSpecialities>
-
+                                        <form onSubmit={onSubmit}>
+                                            <div class="form-group">
+                                                <label for="name">Nombre</label>
+                                                <input class="form-control" id="name" type="text" placeholder="Nombre de la especialidad" onChange={onChange} name="name" required/>
+                                                <label for="price">Precio</label>
+                                                <input class="form-control" id="price" type="number" placeholder="Precio de la especialidad" onChange={onChange} name="price" required/>                                            
                                             </div>
-                                        </div>
+                                            <button className="btn btn-primary">Guardar</button>
+                                            <Link to='/especialidades'><button className="btn btn-default">Cancelar</button></Link>
+                                        </form>
                                     </div>
                                 </div>
-
                             </div>
                         </main>
+
                     </div>
+
                 </div>
             </div>
         </>
-    );
+    )
 }
 
-export default ASpecialities;
-
+export default connect(null, {agregarEspecialidad, userLogout })(ANewSpeciality);

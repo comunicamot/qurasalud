@@ -1,15 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import ATableSpecialities from './ATableSpecialities'
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { agregarDoctor } from '../../redux/actions/doctorsActions';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
 import adminPng from '../../images/admin.png'
 import store from 'store'
-import { connect } from 'react-redux';
 import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
+import Select from 'react-select';
+import { mostrarEspecialidades } from '../../redux/actions/specialitiesActions';
 
-const ASpecialities = ({ history }) => {
+const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspecialidades, userLogout }) => {
 
+    const [checked, setChecked] = useState(false);
+    const [selectedSpecialities, setSelectedSpecialities] = useState(1);
+    const [formData, setFormData] = useState({
+        name: null,
+        last_name:  null,
+        email: null,
+        phone: null,
+        facebook: null,
+        linkedin: null,
+        description: null,
+        tuition: null,
+        outstanding: null,
+        speciality_id: null
+    })
     const [user, setUser] = useState({
         id: null,
         email: null
@@ -17,8 +33,10 @@ const ASpecialities = ({ history }) => {
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
-    }, []);
 
+        mostrarEspecialidades();
+    }, []);
+    
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
     }
@@ -29,6 +47,31 @@ const ASpecialities = ({ history }) => {
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
         history.push('/login');
+    }
+
+    const selectSpecialities = () => {
+        const list = []
+        specialities.forEach(s => {
+            list.push({ label: s.name, value: s.id });
+        });
+        return list;
+    }
+
+    const onChange = e => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    const handleChangeSelect_1 = e => {
+        setSelectedSpecialities(e.value);
+    }
+
+    const onSubmit = e => {
+        e.preventDefault();
+        formData.outstanding = checked;
+        formData.speciality_id = selectedSpecialities;
+        agregarDoctor(formData);
+        console.log(formData);
+        history.push('/medicos');
     }
 
     return (
@@ -151,12 +194,11 @@ const ASpecialities = ({ history }) => {
 
                 <div id="layoutSidenav">
                     <div id="layoutSidenav_nav">
-
                         <SidenavMenu></SidenavMenu>
-
                     </div>
 
                     <div id="layoutSidenav_content">
+
                         <main>
                             <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
                                 <div class="container">
@@ -164,10 +206,10 @@ const ASpecialities = ({ history }) => {
                                         <div class="row align-items-center justify-content-between">
                                             <div class="col-auto mt-4">
                                                 <h1 class="page-header-title">
-                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg></div>
-                                            Especialidades
+                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layout"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
+                                            Médicos
                                         </h1>
-                                                <div class="page-header-subtitle">Mantenimiento de las especialidades que tienen los médicos</div>
+                                                <div class="page-header-subtitle">Mantenimiento de médicos</div>
                                             </div>
                                         </div>
                                     </div>
@@ -175,26 +217,44 @@ const ASpecialities = ({ history }) => {
                             </header>
                             <div class="container mt-n10">
                                 <div class="card mb-4">
-                                    <div class="card-header">Tabla de datos extendida</div>
+                                    <div class="card-header">Agregar un nuevo médico</div>
                                     <div class="card-body">
-                                        <div class="datatable">
-                                            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
-
-                                                <ATableSpecialities></ATableSpecialities>
-
+                                        <form onSubmit={onSubmit}>
+                                            <div class="form-group">
+                                                <label for="name">Nombres</label><input class="form-control" id="name" type="text" placeholder="Nombres del medico" onChange={onChange} name="name" required/>
+                                                <label for="last_name">Apellidos</label><input class="form-control" id="last_name" type="text" placeholder="Apellidos del medico" onChange={onChange} name="last_name" required/>
+                                                <label for="email">Email</label><input class="form-control" id="email" type="email" placeholder="Email del medico" onChange={onChange} name="email" required/>
+                                                <label for="phone">Teléfono</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del medico" onChange={onChange} name="phone" required/>
+                                                <label for="facebook">Facebook</label><input class="form-control" id="facebook" type="text" placeholder="Facebook del medico" onChange={onChange} name="facebook" required/>
+                                                <label for="linkedin">Linkedin</label><input class="form-control" id="linkedin" type="text" placeholder="Linkedin del medico" onChange={onChange} name="linkedin" required/>
+                                                <label for="description">Descripción</label><textarea class="form-control" id="description" type="text" placeholder="Descripcion del medico" onChange={onChange} name="description" required/>
+                                                <label for="tuition">Matrícula</label><input class="form-control" id="tuition" type="number" placeholder="Matrícula del medico" onChange={onChange} name="tuition" required/>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input class="custom-control-input" id="outstanding" type="checkbox" name="outstanding" onChange={() => setChecked(!checked)}/>
+                                                    <label class="custom-control-label" for="outstanding">Sobresaliente</label>
+                                                </div>
+                                                <label for="specialities">Especialidad</label>
+                                                <Select options={selectSpecialities()} id="specialities" onChange={handleChangeSelect_1} placeholder="Especialidades"/>
+                                            
                                             </div>
-                                        </div>
+                                            <button className="btn btn-primary">Guardar</button>
+                                            <Link to='/medicos'><button className="btn btn-default">Cancelar</button></Link>
+                                        </form>
                                     </div>
                                 </div>
-
                             </div>
                         </main>
+
                     </div>
+
                 </div>
             </div>
         </>
-    );
+    )
 }
 
-export default ASpecialities;
+const mapStateToProps = state => ({
+    specialities: state.specialities.specialities
+})
 
+export default connect(mapStateToProps, { agregarDoctor, mostrarEspecialidades, userLogout })(ANewDoctor);

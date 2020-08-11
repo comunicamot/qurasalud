@@ -9,7 +9,7 @@ const Login = ({ history }) => {
     const [isRegistering, setIsRegistering] = useState(false);
 
     if (isLoggedIn()) {
-        return <Redirect to="/tablero" />;
+        return <Redirect to="/perfil" />;
     }
 
     if(isRegistering) {

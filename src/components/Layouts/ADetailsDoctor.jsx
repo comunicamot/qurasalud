@@ -1,15 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import ATableSpecialities from './ATableSpecialities'
+import React, {useState, useEffect} from 'react'
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
 import adminPng from '../../images/admin.png'
-import store from 'store'
+import { mostrarEspecialidades } from '../../redux/actions/specialitiesActions';
 import { connect } from 'react-redux';
+import store from 'store';
 import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
+import Select from 'react-select';
+import { mostrarDoctor, editarDoctor } from '../../redux/actions/doctorsActions';
+import Loading from '../Layouts/Loading';
 
-const ASpecialities = ({ history }) => {
+const ADetailsDoctor = ({mostrarEspecialidades, history, userLogout, specialities, mostrarDoctor, doctor_details, loading, editarDoctor, match}) => {
 
+    const [checked, setChecked] = useState(false);
+    const [selectedSpecialities, setSelectedSpecialities] = useState(1);
+    const [formData, setFormData] = useState({
+        id: null,
+        name: null,
+        last_name:  null,
+        email: null,
+        phone: null,
+        facebook: null,
+        linkedin: null,
+        description: null,
+        tuition: null,
+        outstanding: null,
+        speciality_id: null
+    });
     const [user, setUser] = useState({
         id: null,
         email: null
@@ -17,10 +35,20 @@ const ASpecialities = ({ history }) => {
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
+        mostrarEspecialidades();
+        mostrarDoctor(match.params.id);
     }, []);
+
+    useEffect(()=>{
+        settearDataForm();
+    }, [doctor_details])
 
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
+    }
+
+    const onChange = e => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
     const handleLogout = () => {
@@ -31,6 +59,54 @@ const ASpecialities = ({ history }) => {
         history.push('/login');
     }
 
+    const onSubmit = e => {
+        e.preventDefault();
+        formData.outstanding = checked;
+        formData.speciality_id = selectedSpecialities;
+        formData.id = match.params.id;
+        editarDoctor(formData);
+        history.push('/medicos');
+    }
+
+    const handleChangeSelect_1 = e => {
+        setSelectedSpecialities(e.value);
+    }
+
+    const selectSpecialities = () => {
+        const list = []
+        specialities.forEach(s => {
+            list.push({ label: s.name, value: s.id });
+        });
+        return list;
+    }
+
+    const selectDefaultValue = e => {
+        const doctor = doctor_details[0];
+        if(doctor){
+            return [{label: doctor.specialty.name, value: doctor.specialty.id}];
+        }
+    }
+
+    const settearDataForm = () => {
+        const doctor = doctor_details[0];
+        if(doctor){
+            setFormData({
+                name: doctor.doctor.name,
+                last_name: doctor.doctor.last_name,
+                email: doctor.doctor.email,
+                phone: doctor.doctor.phone,
+                facebook: doctor.doctor.facebook,
+                linkedin: doctor.doctor.linkedin,
+                description: doctor.doctor.description,
+                tuition: doctor.doctor.tuition,
+                outstanding: doctor.doctor.outstanding
+            });
+        }
+    }
+
+    if (loading) {
+        return (<Loading/>)
+    }else{
     return (
         <>
             <div className="nav-fixed">
@@ -151,12 +227,11 @@ const ASpecialities = ({ history }) => {
 
                 <div id="layoutSidenav">
                     <div id="layoutSidenav_nav">
-
                         <SidenavMenu></SidenavMenu>
-
                     </div>
 
                     <div id="layoutSidenav_content">
+
                         <main>
                             <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
                                 <div class="container">
@@ -164,10 +239,10 @@ const ASpecialities = ({ history }) => {
                                         <div class="row align-items-center justify-content-between">
                                             <div class="col-auto mt-4">
                                                 <h1 class="page-header-title">
-                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg></div>
-                                            Especialidades
+                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layout"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
+                                            Médicos
                                         </h1>
-                                                <div class="page-header-subtitle">Mantenimiento de las especialidades que tienen los médicos</div>
+                                                <div class="page-header-subtitle">Mantenimiento de médicos</div>
                                             </div>
                                         </div>
                                     </div>
@@ -175,26 +250,51 @@ const ASpecialities = ({ history }) => {
                             </header>
                             <div class="container mt-n10">
                                 <div class="card mb-4">
-                                    <div class="card-header">Tabla de datos extendida</div>
+                                    <div class="card-header">Editar un médico</div>
                                     <div class="card-body">
-                                        <div class="datatable">
-                                            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
-
-                                                <ATableSpecialities></ATableSpecialities>
-
+                                        <form onSubmit={onSubmit}>
+                                            <div class="form-group">
+                                                <label for="name">Nombres</label><input class="form-control" id="name" type="text" placeholder="Nombres del medico" onChange={onChange} name="name" defaultValue={formData.name} required/>
+                                                <label for="last_name">Apellidos</label><input class="form-control" id="last_name" type="text" placeholder="Apellidos del medico" onChange={onChange} name="last_name" defaultValue={formData.last_name} required/>
+                                                <label for="email">Email</label><input class="form-control" id="email" type="email" placeholder="Email del medico" onChange={onChange} name="email" defaultValue={formData.email} required/>
+                                                <label for="phone">Teléfono</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del medico" onChange={onChange} name="phone" defaultValue={formData.phone} defaultValue={formData.phone} required/>
+                                                <label for="facebook">Facebook</label><input class="form-control" id="facebook" type="text" placeholder="Facebook del medico" onChange={onChange} name="facebook" defaultValue={formData.facebook} required/>
+                                                <label for="linkedin">Linkedin</label><input class="form-control" id="linkedin" type="text" placeholder="Linkedin del medico" onChange={onChange} name="linkedin" defaultValue={formData.linkedin} required/>
+                                                <label for="description">Descripción</label><textarea class="form-control" id="description" type="text" placeholder="Descripcion del medico" onChange={onChange} name="description" defaultValue={formData.description} required/>
+                                                <label for="tuition">Matrícula</label><input class="form-control" id="tuition" type="number" placeholder="Matrícula del medico" onChange={onChange} name="tuition" defaultValue={formData.tuition} required/>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input class="custom-control-input" id="outstanding" type="checkbox" name="outstanding" onChange={() => setChecked(!checked)} defaultChecked={formData.outstanding} />
+                                                    <label class="custom-control-label" for="outstanding">Sobresaliente</label>
+                                                </div>
+                                                <label for="specialities">Especialidad</label>
+                                                <Select options={selectSpecialities()} defaultValue={selectDefaultValue()} id="specialities" onChange={handleChangeSelect_1} placeholder="Especialidades"/>
+                                            
                                             </div>
-                                        </div>
+                                            <button className="btn btn-primary">Guardar</button>
+                                            <Link to='/medicos'><button className="btn btn-default">Cancelar</button></Link>
+                                        </form>
                                     </div>
                                 </div>
-
                             </div>
                         </main>
+
                     </div>
+
                 </div>
             </div>
         </>
-    );
+    )
+    }
 }
-
-export default ASpecialities;
-
+const mapStateToProps = state => ({
+    specialities: state.specialities.specialities,
+    doctor_details: state.doctors.doctor_details,
+    loading: state.doctors.loading
+});
+const mapDispatchToProps = {
+    mostrarEspecialidades,
+    userLogout,
+    mostrarDoctor,
+    editarDoctor
+}
+export default connect (mapStateToProps, mapDispatchToProps)(ADetailsDoctor);

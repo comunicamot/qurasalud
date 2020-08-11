@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import Footer from '../Layouts/Footer';
-import Profile from '../Layouts/Profile';
-import MedicalHistory from '../Layouts/MedicalHistory';
-import store from 'store';
 import { connect } from 'react-redux';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
-import MedicalAppoHist from '../Layouts/MedicalAppoHist';
-import adminPng from '../../images/admin.png'
-import ADoctors from '../Layouts/ADoctors';
-import AMedicalAppoHist from '../Layouts/AMedicalAppoHist';
-import APatients from '../Layouts/APatients';
-import ASpecialities from '../Layouts/ASpecialities';
-import ADoctorsHours from '../Layouts/ADoctorsHours';
+import store from 'store';
+import SidenavMenu from '../Layouts/SidenavMenu';
+import adminPng from '../../images/admin.png';
 import { userLogout } from '../../redux/actions/user/loginActions';
 
-const Dashboard = ({ history, userLogout }) => {
+const Perfil = ({ history, userLogout }) => {
 
     const [optionSidenav, setOptionSidenav] = useState(1);
     const [user, setUser] = useState({
@@ -45,10 +37,6 @@ const Dashboard = ({ history, userLogout }) => {
 
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
-    }
-
-    const handleOptionSidenav = (opt) => {
-        setOptionSidenav(opt);
     }
 
     const handleLogout = () => {
@@ -171,7 +159,7 @@ const Dashboard = ({ history, userLogout }) => {
                                         </div>
                                     </h6>
                                     <div className="dropdown-divider"></div>
-                                    <Link className="dropdown-item" onClick={() => { handleOptionSidenav(1) }} >
+                                    <Link className="dropdown-item" >
                                         <div className="dropdown-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
                           Cuenta
                       </Link>
@@ -186,64 +174,15 @@ const Dashboard = ({ history, userLogout }) => {
 
                     <div id="layoutSidenav">
                         <div id="layoutSidenav_nav">
-                            <nav className="sidenav shadow-right sidenav-light">
-                                <div className="sidenav-menu">
-                                    <div className="nav accordion" id="accordionSidenav">
-                                        <div className="sidenav-menu-heading">Paciente</div>
-                                        <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collapseDashboards" aria-expanded="false" aria-controls="collapseDashboards">
-                                            <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
-                                    Cuenta
-                                    <div className="sidenav-collapse-arrow"><svg className="svg-inline--fa fa-angle-down fa-w-10" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg=""><path fill="currentColor" d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path></svg></div>
-                                        </a>
-                                        <div className="collapse show" id="collapseDashboards" data-parent="#accordionSidenav">
-                                            <nav className="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                                                <a className={optionSidenav === 1 ? "nav-link active" : "nav-link"} href="javascript:void(0);" onClick={() => { handleOptionSidenav() }}>
-                                                    Perfil
-                                    </a>
-                                                <a className={optionSidenav === 2 ? "nav-link active" : "nav-link"} href="javascript:void(0);" onClick={() => { handleOptionSidenav() }}>
-                                                    Antecedentes Médicos
-                                    </a>
 
-                                            </nav>
-                                        </div>
-                                        <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
-                                            <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                                    Citas Médicas
-                                    <div className="sidenav-collapse-arrow"><svg className="svg-inline--fa fa-angle-down fa-w-10" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg=""><path fill="currentColor" d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path></svg></div>
-                                        </a>
-                                        <div className="collapse" id="collapsePages" data-parent="#accordionSidenav">
-                                            <nav className="sidenav-menu-nested nav accordion" id="accordionSidenavPagesMenu">
-                                                <a className="nav-link" href="javascript:void(0);" className={optionSidenav === 3 ? "nav-link active" : "nav-link"} onClick={() => { handleOptionSidenav() }} >
-                                                    Historial
-                                    </a>
-                                                <a className="nav-link" href="javascript:void(0);">
-                                                    Reservar
-                                    </a>
-                                            </nav>
-                                        </div>
+                            <SidenavMenu />
 
-
-                                    </div>
-                                </div>
-                                <div className="sidenav-footer">
-                                    <div className="sidenav-footer-content">
-                                        <div className="sidenav-footer-subtitle">Conectado con:</div>
-                                        <div className="sidenav-footer-title"> {patient.name} </div>
-                                    </div>
-                                </div>
-                            </nav>
                         </div>
 
                         <div id="layoutSidenav_content">
-                            {
-                                optionSidenav === 1 ? (<Profile user={user} patient={patient} optionSidenav={optionSidenav} handleOptionSidenav={handleOptionSidenav} ></Profile>) : (<></>)
-                            }
-                            {
-                                optionSidenav === 2 ? (<MedicalHistory optionSidenav={optionSidenav} handleOptionSidenav={handleOptionSidenav} ></MedicalHistory>) : (<></>)
-                            }
-                            {
-                                optionSidenav === 3 ? (<MedicalAppoHist optionSidenav={optionSidenav} handleOptionSidenav={handleOptionSidenav} ></MedicalAppoHist>) : (<></>)
-                            }
+
+
+
                         </div>
                     </div>
                 </div>
@@ -355,7 +294,7 @@ const Dashboard = ({ history, userLogout }) => {
                                         </div>
                                     </h6>
                                     <div className="dropdown-divider"></div>
-                                    <Link className="dropdown-item" onClick={() => { handleOptionSidenav(1) }}>
+                                    <Link className="dropdown-item" >
                                         <div className="dropdown-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
                                         Cuenta
                                     </Link>
@@ -370,83 +309,62 @@ const Dashboard = ({ history, userLogout }) => {
 
                     <div id="layoutSidenav">
                         <div id="layoutSidenav_nav">
-                            <nav className="sidenav shadow-right sidenav-light">
 
-                                <div className="sidenav-menu">
-                                    <div className="nav accordion" id="accordionSidenav">
-                                        <div className="sidenav-menu-heading">Administrador</div>
-                                        <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collapseDashboards" aria-expanded="false" aria-controls="collapseDashboards">
-                                            <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
-                                    Cuenta
-                                    <div className="sidenav-collapse-arrow"><svg className="svg-inline--fa fa-angle-down fa-w-10" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg=""><path fill="currentColor" d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path></svg></div>
-                                        </a>
-                                        <div className="collapse show" id="collapseDashboards" data-parent="#accordionSidenav">
-                                            <nav className="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                                                <a className={optionSidenav === 1 ? "nav-link active" : "nav-link"} href="javascript:void(0);" onClick={() => { handleOptionSidenav(1) }}>
-                                                    Perfil
-                                                </a>
-                                            </nav>
-                                        </div>
-                                        <a className="nav-link" onClick={() => { handleOptionSidenav(2) }} href="javascript:void(0);" data-toggle="collapse" data-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
-                                            <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                                    Médicos
-                                    <div className="sidenav-collapse-arrow"></div>
-                                        </a>
+                            <SidenavMenu />
 
-                                        <a className="nav-link" onClick={() => { handleOptionSidenav(3) }} href="javascript:void(0);" data-toggle="collapse" data-target="#collapsed2" aria-expanded="false" aria-controls="collapsePages">
-                                            <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                                    Pacientes
-                                    <div className="sidenav-collapse-arrow"></div>
-                                        </a>
-                                        <a className="nav-link" onClick={() => { handleOptionSidenav(4) }} href="javascript:void(0);" data-toggle="collapse" data-target="#collapsed3" aria-expanded="false" aria-controls="collapsePages">
-                                            <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                                    Citas
-                                    <div className="sidenav-collapse-arrow"></div>
-                                        </a>
-
-                                        <a className="nav-link" onClick={() => { handleOptionSidenav(5) }} href="javascript:void(0);" data-toggle="collapse" data-target="#collapsed3" aria-expanded="false" aria-controls="collapsePages">
-                                            <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                                    Especialidades
-                                    <div className="sidenav-collapse-arrow"></div>
-                                        </a>
-
-                                        <a className="nav-link" onClick={() => { handleOptionSidenav(6) }} href="javascript:void(0);" data-toggle="collapse" data-target="#collapsed3" aria-expanded="false" aria-controls="collapsePages">
-                                            <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                                    Horario
-                                    <div className="sidenav-collapse-arrow"></div>
-                                        </a>
-
-
-                                    </div>
-                                </div>
-                                <div className="sidenav-footer">
-                                    <div className="sidenav-footer-content">
-                                        <div className="sidenav-footer-subtitle">Conectado con:</div>
-                                        <div className="sidenav-footer-title"> {user.email} </div>
-                                    </div>
-                                </div>
-                            </nav>
                         </div>
 
                         <div id="layoutSidenav_content">
-                            {
-                                optionSidenav === 1 ? (<Profile user={user} patient={patient} optionSidenav={optionSidenav} handleOptionSidenav={handleOptionSidenav} ></Profile>) : (<></>)
-                            }
-                            {
-                                optionSidenav === 2 ? (<ADoctors user={user} optionSidenav={optionSidenav} handleOptionSidenav={handleOptionSidenav} ></ADoctors>) : (<></>)
-                            }
-                            {
-                                optionSidenav === 3 ? (<APatients user={user} optionSidenav={optionSidenav} handleOptionSidenav={handleOptionSidenav} ></APatients>) : (<></>)
-                            }
-                            {
-                                optionSidenav === 4 ? (<AMedicalAppoHist user={user} optionSidenav={optionSidenav} handleOptionSidenav={handleOptionSidenav} ></AMedicalAppoHist>) : (<></>)
-                            }
-                            {
-                                optionSidenav === 5 ? (<ASpecialities></ASpecialities>) : (<></>)
-                            }
-                            {
-                                optionSidenav === 6 ? (<ADoctorsHours></ADoctorsHours>) : (<></>)
-                            }
+
+                            <main>
+                                <header className="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                                    <div className="container-fluid">
+                                        <div className="page-header-content">
+                                            <div className="row align-items-center justify-content-between pt-3">
+                                                <div className="col-auto mb-3">
+                                                    <h1 className="page-header-title">
+                                                        <div className="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" stroke-linecap="round" strokeLinejoin="round" className="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                                                Cuenta - Perfil
+                                            </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </header>
+                                <div className="container mt-4">
+                                    <nav className="nav nav-borders">
+                                        <Link className="nav-link ml-0" to='/perfil'>Perfil</Link>
+                                    </nav>
+                                    <hr className="mt-0 mb-4" />
+                                    <div className="row">
+                                        <div className="col-xl-4">
+                                            <div className="card">
+                                                <div className="card-header">Foto de perfil</div>
+                                                <div className="card-body text-center">
+                                                    <img className="img-account-profile rounded-circle mb-2" src={adminPng} alt="" />
+                                                    <div className="small font-italic text-muted mb-4">JPG o PNG no mayor a 5 MB</div>
+                                                    <input type="file" id="avatar" style={{ display: 'none' }} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="col-xl-8">
+                                            <div className="card mb-4">
+                                                <div className="card-header">Detalles de la cuenta</div>
+                                                <div className="card-body">
+                                                    <form>
+                                                        <div className="form-group">
+                                                            <label className="small mb-1" htmlFor="email">Correo electrónico</label>
+                                                            <input className="form-control" id="email" name="email" type="email" placeholder="Ingrese su correo electrónico" value={user.email} required />
+                                                        </div>
+
+                                                        <button className="btn btn-primary" type="button">Guardar cambios</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
 
                         </div>
 
@@ -461,4 +379,4 @@ const mapStateToProps = state => ({
     user: state.login.user
 });
 
-export default connect(mapStateToProps, { userLogout })(Dashboard);
+export default connect(mapStateToProps, { userLogout })(Perfil);

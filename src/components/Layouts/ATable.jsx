@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import deleteIcon from '../../images/delete-icon.svg';
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { mostrarDoctores, mostrarDoctor } from '../../redux/actions/doctorsActions';
+import { mostrarDoctores, mostrarDoctor, eliminarDoctor } from '../../redux/actions/doctorsActions';
+import Loading from '../Layouts/Loading';
 
-const ATable = ({ doctors, mostrarDoctores, doctor_details, specialities, mostrarDoctor }) => {
+const ATable = ({ doctors, mostrarDoctores, specialities, eliminarDoctor, loading }) => {
 
     useEffect(() => {
 
@@ -15,34 +15,23 @@ const ATable = ({ doctors, mostrarDoctores, doctor_details, specialities, mostra
 
     }, []);
 
-    const options = [
-        { value: 'blues', label: 'Blues' },
-        { value: 'rock', label: 'Rock' },
-        { value: 'jazz', label: 'Jazz' },
-        { value: 'orchestra', label: 'Orchestra' }];
+    const deleteDoctor = id => {
 
-    const getDetailDoctor = (id) => {
-        console.log("### WE HAVE TO GET THE ID ###");
-        console.log(id);
-        mostrarDoctor(id);
+        var answer = window.confirm("¿Eliminar medico?")
+        if (answer) {
+            //some code
+            eliminarDoctor(id);
+            mostrarDoctores();
+        }
     }
 
+    if(loading){
+        return (<Loading/>)
+    }else{
     return (
         <>
             <div class="row">
-                <div class="col-sm-4 col-4">
-                    <div className="form-inline">
-                        <div className="form-group mb-3">
-                            <label for="">Buscar: </label>
-                            <select name="dataTable_length" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm ml-1">
-                                <option value="cardiologia">Cardiologia</option>
-                                <option value="ginecologia">Ginecologia</option>
-                                <option value="neurologia">Neurologia</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-4 col-4">
+                <div class="col-sm-4 col-12">
                     <div className="form-inline">
                         <div className="form-group mb-3">
                             <label for="">Buscar: </label>
@@ -66,7 +55,7 @@ const ATable = ({ doctors, mostrarDoctores, doctor_details, specialities, mostra
                                 <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1">Especialidad</th>
                                 <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" >E-Mail</th>
                                 <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" >Telefono</th>
-                                <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" >Opciones</th>
+                                <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="2" colspan="2" >Opciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -78,7 +67,10 @@ const ATable = ({ doctors, mostrarDoctores, doctor_details, specialities, mostra
                                     <td> {doctor.doctor.email} </td>
                                     <td> {doctor.doctor.phone} </td>
                                     <td>
-                                        <Link onClick={() => { getDetailDoctor(doctor.doctor.id) }}>Ver detalles</Link>
+                                        <Link to={`medico/detalles/${doctor.doctor.id}`} >Ver detalles</Link>
+                                    </td>
+                                    <td>
+                                    <button class="btn btn-datatable btn-icon btn-transparent-dark" onClick={()=>{deleteDoctor(doctor.doctor.id)}}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
                                     </td>
                                 </tr>)
                             }
@@ -86,48 +78,19 @@ const ATable = ({ doctors, mostrarDoctores, doctor_details, specialities, mostra
                     </table>
                 </div>
                 <div className="col-sm-12">
-                    <button className="btn btn-primary" type="button" data-toggle="modal" data-target="#doctorsModalXl">Agregar</button>
-                </div>
-            </div>
-            <div class="modal fade" id="doctorsModalXl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" style={{ display: "none" }} aria-hidden="true">
-                <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Nuevo médico</h5>
-                            <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="form-group">
-                                    <label for="">Nombres</label><input class="form-control" id="" type="text" placeholder="Nombres del medico"/>
-                                    <label for="">Apellidos</label><input class="form-control" id="" type="text" placeholder="Apellidos del medico"/>
-                                    <label for="">Email</label><input class="form-control" id="" type="email" placeholder="Email del medico"/>
-                                    <label for="">Teléfono</label><input class="form-control" id="" type="tel" placeholder="Telefono del medico"/>
-                                    <label for="">Facebook</label><input class="form-control" id="" type="text" placeholder="Telefono del medico"/>
-                                    <label for="">Linkedin</label><input class="form-control" id="" type="text" placeholder="Telefono del medico"/>
-                                    <label for="">Descripción</label><textarea class="form-control" id="" type="text" placeholder="Telefono del medico"/>
-                                    <label for="">Matrícula</label><input class="form-control" id="" type="number" placeholder="Telefono del medico"/>
-                                    <label for="">Sobresaliente</label><input class="form-control" id="" type="check" placeholder="Telefono del medico"/>
-                                    <label for="">Especialidad</label>
-                                    <Select options = {options} />
-                                    <label for="">Registrado</label>
-                                    <input class="form-control" id="" type="tel" placeholder="Telefono del medico"/>
-                                </div>
-
-                            </form>
-                        </div>
-                        <div class="modal-footer"><button class="btn btn-primary" type="button" data-dismiss="modal">Cancelar</button></div>
-                    </div>
+                    <Link className="btn btn-primary" to='/nuevo_medico'>Agregar medico</Link>
                 </div>
             </div>
         </>
     )
+    }
 }
 
 const mapStateToProps = state => ({
     doctors: state.doctors.doctors,
+    loading: state.doctors.loading,
     doctor_details: state.doctors.doctor_details,
     specialities: state.specialities.specialities
 })
 
-export default connect(mapStateToProps, { mostrarDoctores, mostrarDoctor })(ATable);
+export default connect(mapStateToProps, { mostrarDoctores, mostrarDoctor, eliminarDoctor})(ATable);
