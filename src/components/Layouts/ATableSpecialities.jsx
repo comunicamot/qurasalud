@@ -5,13 +5,14 @@ import { connect } from 'react-redux';
 import { mostrarEspecialidades, eliminarEspecialidad, mostrarEspecialidad } from '../../redux/actions/specialitiesActions';
 import Loading from '../Layouts/Loading';
 
-const ATableSpecialities = ({ mostrarEspecialidades, specialities, eliminarEspecialidad, loading }) => {
+const ATableSpecialities = ({ mostrarEspecialidades, specialities, eliminarEspecialidad, loading, history }) => {
 
     useEffect(() => {
 
-        console.log("### FROM THE ATABLE ###");
+        console.log("### FROM ATABLASPECIALITIES ###");
         console.log(specialities);
-        mostrarEspecialidades();
+        
+        setTimeout(mostrarEspecialidades, 2000);
 
     }, []);
 
@@ -20,7 +21,7 @@ const ATableSpecialities = ({ mostrarEspecialidades, specialities, eliminarEspec
         var answer = window.confirm("¿Eliminar especialidad?")
         if (answer) {
             eliminarEspecialidad(id);
-            mostrarEspecialidades();
+            setTimeout(mostrarEspecialidades, 2000);
         }
     }
 

@@ -10,8 +10,10 @@ const initialState = {
 export default function (state = initialState, action) {
     switch (action.type) {
         case LOADING: return {
-            ...state,
-            loading: true
+            loading: true,
+            specialities: [],
+            error: false,
+            speciality_details: []
         }
         case MOSTRAR_ESPECIALIDADES: return {
             loading: false,

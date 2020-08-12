@@ -9,11 +9,23 @@ export const userLogin = userModel => async dispatch => {
         });
 
         const response = await axios.post('http://74.207.230.214/api/v1/login', userModel);
-        
-        dispatch({
-            type: SIGNIN_SUCCESS,
-            payload: response.data
-        });
+
+        if(response.data.user){
+
+            dispatch({
+                type: SIGNIN_SUCCESS,
+                payload: response.data
+            });
+
+
+        } else {
+            
+            dispatch({
+                type: SIGNIN_ERROR
+            });
+
+        }
+
 
     } catch (e) {
         console.log(e);

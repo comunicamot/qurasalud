@@ -9,34 +9,36 @@ import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
 import Select from 'react-select';
 import { mostrarEspecialidades } from '../../redux/actions/specialitiesActions';
+import Loading from '../Layouts/Loading';
 
-const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspecialidades, userLogout }) => {
+const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspecialidades, userLogout}) => {
 
     const [checked, setChecked] = useState(false);
-    const [selectedSpecialities, setSelectedSpecialities] = useState(1);
+    const [selectedSpecialities, setSelectedSpecialities] = useState(null);
     const [formData, setFormData] = useState({
-        name: null,
-        last_name:  null,
-        email: null,
-        phone: null,
-        facebook: null,
-        linkedin: null,
-        description: null,
-        tuition: null,
-        outstanding: null,
-        speciality_id: null
+        name: "",
+        last_name:  "",
+        email: "",
+        phone: 0,
+        facebook: "",
+        linkedin: "",
+        description: "",
+        tuition: 0,
+        outstanding: false,
+        speciality_id: 0
     })
     const [user, setUser] = useState({
-        id: null,
-        email: null
+        id: "",
+        email: ""
     });
+    const [formError, setFormError] = useState(false);
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
 
         mostrarEspecialidades();
     }, []);
-    
+
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
     }
@@ -69,9 +71,15 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspecialidade
         e.preventDefault();
         formData.outstanding = checked;
         formData.speciality_id = selectedSpecialities;
-        agregarDoctor(formData);
         console.log(formData);
-        history.push('/medicos');
+        
+        if(formData.speciality_id) {
+            agregarDoctor(formData);
+            history.push('/medicos');
+        }else{
+            setFormError(true);
+        }
+
     }
 
     return (
@@ -221,22 +229,29 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspecialidade
                                     <div class="card-body">
                                         <form onSubmit={onSubmit}>
                                             <div class="form-group">
-                                                <label for="name">Nombres</label><input class="form-control" id="name" type="text" placeholder="Nombres del medico" onChange={onChange} name="name" required/>
-                                                <label for="last_name">Apellidos</label><input class="form-control" id="last_name" type="text" placeholder="Apellidos del medico" onChange={onChange} name="last_name" required/>
-                                                <label for="email">Email</label><input class="form-control" id="email" type="email" placeholder="Email del medico" onChange={onChange} name="email" required/>
-                                                <label for="phone">Teléfono</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del medico" onChange={onChange} name="phone" required/>
-                                                <label for="facebook">Facebook</label><input class="form-control" id="facebook" type="text" placeholder="Facebook del medico" onChange={onChange} name="facebook" required/>
-                                                <label for="linkedin">Linkedin</label><input class="form-control" id="linkedin" type="text" placeholder="Linkedin del medico" onChange={onChange} name="linkedin" required/>
-                                                <label for="description">Descripción</label><textarea class="form-control" id="description" type="text" placeholder="Descripcion del medico" onChange={onChange} name="description" required/>
-                                                <label for="tuition">Matrícula</label><input class="form-control" id="tuition" type="number" placeholder="Matrícula del medico" onChange={onChange} name="tuition" required/>
+                                                <label for="name">Nombres*</label><input class="form-control" id="name" type="text" placeholder="Nombres del medico" onChange={onChange} name="name" required/>
+                                                <label for="last_name">Apellidos*</label><input class="form-control" id="last_name" type="text" placeholder="Apellidos del medico" onChange={onChange} name="last_name" required/>
+                                                <label for="email">Email*</label><input class="form-control" id="email" type="email" placeholder="Email del medico" onChange={onChange} name="email" required/>
+                                                <label for="phone">Teléfono*</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del medico" onChange={onChange} name="phone" required maxLength="11" minLength="8"/>
+                                                <label for="facebook">Facebook</label><input class="form-control" id="facebook" type="text" placeholder="Facebook del medico" onChange={onChange} name="facebook" />
+                                                <label for="linkedin">Linkedin</label><input class="form-control" id="linkedin" type="text" placeholder="Linkedin del medico" onChange={onChange} name="linkedin"/>
+                                                <label for="description">Descripción*</label><textarea class="form-control" id="description" type="text" placeholder="Descripcion del medico" onChange={onChange} name="description" required/>
+                                                <label for="tuition">Matrícula*</label><input class="form-control" id="tuition" type="number" placeholder="Matrícula del medico" onChange={onChange} name="tuition" required/>
                                                 <div class="custom-control custom-checkbox">
                                                     <input class="custom-control-input" id="outstanding" type="checkbox" name="outstanding" onChange={() => setChecked(!checked)}/>
                                                     <label class="custom-control-label" for="outstanding">Sobresaliente</label>
                                                 </div>
-                                                <label for="specialities">Especialidad</label>
+                                                <label for="specialities">Especialidad*</label>
                                                 <Select options={selectSpecialities()} id="specialities" onChange={handleChangeSelect_1} placeholder="Especialidades"/>
                                             
                                             </div>
+
+                                            {
+                                                formError ? (<div class="alert alert-dark" role="alert">
+                                                    Por favor, complete los campos que son obligatorios
+                                                </div>) : (<></>)
+                                            }
+
                                             <button className="btn btn-primary">Guardar</button>
                                             <Link to='/medicos'><button className="btn btn-default">Cancelar</button></Link>
                                         </form>
@@ -255,6 +270,12 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspecialidade
 
 const mapStateToProps = state => ({
     specialities: state.specialities.specialities
-})
+});
 
-export default connect(mapStateToProps, { agregarDoctor, mostrarEspecialidades, userLogout })(ANewDoctor);
+const mapDispatchToProps = {
+    agregarDoctor,
+    mostrarEspecialidades,
+    userLogout
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ANewDoctor);

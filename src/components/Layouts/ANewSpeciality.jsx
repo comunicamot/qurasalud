@@ -9,11 +9,10 @@ import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
 import Select from 'react-select';
 import { agregarEspecialidad } from '../../redux/actions/specialitiesActions';
+import validator from 'validator';
 
 const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
 
-    const [checked, setChecked] = useState(false);
-    const [selectedSpecialities, setSelectedSpecialities] = useState(1);
     const [formData, setFormData] = useState({
         name: null,
         price: null
@@ -22,6 +21,8 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
         id: null,
         email: null
     });
+    const [formError, setFormError] = useState(false);
+    
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
@@ -45,9 +46,13 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
 
     const onSubmit = e => {
         e.preventDefault();
-        // console.log(formData);
-        agregarEspecialidad(formData);
-        history.push('/especialidades');
+        
+        if(validator.isNumeric(formData.price.toString())){
+            agregarEspecialidad(formData);
+            history.push('/especialidades');
+        }else{
+            setFormError(true);
+        }
     }
 
     return (
@@ -197,13 +202,16 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
                                     <div class="card-body">
                                         <form onSubmit={onSubmit}>
                                             <div class="form-group">
-                                                <label for="name">Nombre</label>
+                                                <label for="name">Nombre*</label>
                                                 <input class="form-control" id="name" type="text" placeholder="Nombre de la especialidad" onChange={onChange} name="name" required/>
-                                                <label for="price">Precio</label>
-                                                <input class="form-control" id="price" type="number" placeholder="Precio de la especialidad" onChange={onChange} name="price" required/>                                            
+                                                <label for="price">Precio*</label>
+                                                <input class="form-control" id="price" type="text" placeholder="Precio de la especialidad" onChange={onChange} name="price" required maxLength="6" minLength="2"/>                     
                                             </div>
                                             <button className="btn btn-primary">Guardar</button>
                                             <Link to='/especialidades'><button className="btn btn-default">Cancelar</button></Link>
+                                            {
+                                                formError ? (<div class="alert alert-dark" role="alert"> Hubo un error al registrar la especialidad</div>) : (<></>)
+                                            }
                                         </form>
                                     </div>
                                 </div>

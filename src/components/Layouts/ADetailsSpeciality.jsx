@@ -9,18 +9,20 @@ import SidenavMenu from './SidenavMenu';
 import Select from 'react-select';
 import { mostrarEspecialidad, editarEspecialidad } from '../../redux/actions/specialitiesActions';
 import Loading from '../Layouts/Loading';
+import validator from 'validator';
 
 const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_details, loading, userLogout, match, history}) => {
 
     const [formData, setFormData] = useState({
-        id: null,
-        name: null,
-        price: null
+        id: 0,
+        name: "",
+        price: 0
     });
     const [user, setUser] = useState({
         id: null,
         email: null
     });
+    const [formError, setFormError] = useState(false);
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
@@ -60,8 +62,12 @@ const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_
     const onSubmit = e => {
         e.preventDefault();
         formData.id = match.params.id;
-        editarEspecialidad(formData);
-        history.push('/especialidades');
+        if(validator.isNumeric(formData.price.toString())){
+            editarEspecialidad(formData);
+            history.push('/especialidades');
+        }else{
+            setFormError(true);
+        }
     }
 
     if(loading) {
@@ -214,15 +220,18 @@ const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_
                                         <div class="card-body">
                                             <form onSubmit={onSubmit}>
                                                 <div class="form-group">
-                                                    <label for="name">Nombre</label>
+                                                    <label for="name">Nombre*</label>
                                                     <input class="form-control" id="name" type="text" placeholder="Nombre de la especialidad" onChange={onChange} name="name" defaultValue={formData.name} required/>
-                                                    <label for="price">Precio</label>
-                                                    <input class="form-control" id="price" type="number" placeholder="Precio de la especialidad" onChange={onChange} name="price" defaultValue={formData.price} required/>                                            
+                                                    <label for="price">Precio*</label>
+                                                    <input class="form-control" id="price" type="text" placeholder="Precio de la especialidad" onChange={onChange} name="price" required maxLength="6" minLength="2" defaultValue={formData.price} />                                            
                                                 </div>
                                                 <button className="btn btn-primary">Guardar</button>
                                                 <Link to='/especialidades'><button className="btn btn-default">Cancelar</button></Link>
+                                                {
+                                                formError ? (<div class="alert alert-dark" role="alert"> Hubo un error al registrar la especialidad</div>) : (<></>)
+                                            }
                                             </form>
-                                        </div>
+                                        </div> 
                                     </div>
                                 </div>
                             </main>

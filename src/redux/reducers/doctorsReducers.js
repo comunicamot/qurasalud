@@ -4,8 +4,7 @@ const initialState = {
     loading: false,
     doctors: [],
     error: false,
-    doctor_details: [],
-    edited: false
+    doctor_details: []
 }
 
 export default function (state = initialState, action) {
@@ -15,36 +14,27 @@ export default function (state = initialState, action) {
                 loading: true,
                 doctors: [],
                 error: false,
-                doctor_details: [],
-                edited: false,
-                deleted: false
+                doctor_details: []
             }
         case MOSTRAR_DOCTORES:
             return {
                 loading: false,
                 doctors: action.payload,
                 error: false,
-                doctor_details: [],
-                edited: false,
-                deleted: false
+                doctor_details: []
             }
-        case AGREGAR_DOCTOR:
-            return {
-                loading: false,
-                doctors: [],
-                error: false,
-                doctor_details: [],
-                edited: false,
-                deleted: false
-            }
+        case AGREGAR_DOCTOR: return {
+            loading: false,
+            doctors: [],
+            error: false,
+            doctor_details: []
+        }
         case ERROR:
             return {
                 loading: false,
                 doctors: [],
                 error: true,
-                doctor_details: [],
-                edited: false,
-                deleted: false
+                doctor_details: []
             }
         case MOSTRAR_DOCTOR: return {
             ...state,
@@ -56,17 +46,13 @@ export default function (state = initialState, action) {
             loading: false,
             doctors: [],
             error: false,
-            doctor_details: [],
-            edited: true,
-            deleted: false
+            doctor_details: []
         }
         case ELIMINAR_DOCTOR: return {
             loading: false,
             doctors: [],
             error: false,
-            doctor_details: [],
-            edited: false,
-            deleted: true
+            doctor_details: []
         }
         default:
             return state;

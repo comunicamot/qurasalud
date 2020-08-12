@@ -43,9 +43,19 @@ export const agregarDoctor = doctorModel => async dispatch => {
 
         console.log(response.data);
 
-        dispatch({
-            type: AGREGAR_DOCTOR
-        });
+        if(response.data.codRes == "00"){
+
+            dispatch({
+                type: AGREGAR_DOCTOR
+            });
+
+        } else {
+
+            dispatch({
+                type: ERROR
+            });
+
+        }
 
     } catch (e) {
         

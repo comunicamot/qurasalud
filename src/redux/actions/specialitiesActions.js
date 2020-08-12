@@ -6,12 +6,14 @@ export const mostrarEspecialidades = () => async dispatch => {
         
         dispatch({
             type: LOADING
-        })
+        });
 
         const token = localStorage.getItem('TOKEN');
         const response = await axios.get('http://74.207.230.214/api/v1/specialties', {headers: {
             Authorization: `Bearer ${token}`
         }});
+
+        console.log(response.data);
 
         dispatch({
             type: MOSTRAR_ESPECIALIDADES,
@@ -42,10 +44,20 @@ export const agregarEspecialidad = specialityModel => async dispatch => {
         }});
 
         console.log(response.data);
-        
-        dispatch({
-            type: AGREGAR_ESPECIALIDAD
-        });
+
+        if(response.data.codRes == "00"){
+
+            dispatch({
+                type: AGREGAR_ESPECIALIDAD
+            });
+
+        } else {
+
+            dispatch({
+                type: ERROR
+            });
+
+        }        
 
     } catch (e) {
         console.log(e);
@@ -101,9 +113,15 @@ export const editarEspecialidad = specialityModel => async dispatch => {
 
         console.log(response.data);
         
-        dispatch({
-            type: EDITAR_ESPECIALIDAD
-        });
+        if(response.data.codRes == "00"){
+            dispatch({
+                type: EDITAR_ESPECIALIDAD
+            });
+        } else {
+            dispatch({
+                type: ERROR
+            });    
+        }
 
     } catch (e) {
         console.log(e);
