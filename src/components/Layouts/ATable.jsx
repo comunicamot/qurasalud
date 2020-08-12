@@ -11,7 +11,7 @@ const ATable = ({ doctors, mostrarDoctores, specialities, eliminarDoctor, loadin
 
         console.log("### FROM THE ATABLE ###");
         console.log(doctors);
-        setTimeout(mostrarDoctores, 2000);
+        setTimeout(mostrarDoctores, 3000);
 
     }, []);
 
@@ -20,7 +20,7 @@ const ATable = ({ doctors, mostrarDoctores, specialities, eliminarDoctor, loadin
         var answer = window.confirm("¿Eliminar medico?")
         if (answer) {
             eliminarDoctor(id);
-            setTimeout(mostrarDoctores, 2000);
+            setTimeout(mostrarDoctores, 3000);
         }
     }
 

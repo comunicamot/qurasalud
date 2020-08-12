@@ -12,7 +12,7 @@ const ATableSpecialities = ({ mostrarEspecialidades, specialities, eliminarEspec
         console.log("### FROM ATABLASPECIALITIES ###");
         console.log(specialities);
         
-        setTimeout(mostrarEspecialidades, 2000);
+        setTimeout(mostrarEspecialidades, 3000);
 
     }, []);
 
@@ -21,7 +21,7 @@ const ATableSpecialities = ({ mostrarEspecialidades, specialities, eliminarEspec
         var answer = window.confirm("¿Eliminar especialidad?")
         if (answer) {
             eliminarEspecialidad(id);
-            setTimeout(mostrarEspecialidades, 2000);
+            setTimeout(mostrarEspecialidades, 3000);
         }
     }
 
