@@ -1,20 +1,55 @@
-import { AGREGAR_ESPECIALIDAD, MOSTRAR_ESPECIALIDADES, EDITAR_ESPECIALIDAD, ELIMINAR_ESPECIALIDAD, LOADING, ERROR, MOSTRAR_ESPECIALIDAD } from '../actions/types';
+import { AGREGAR_ESPECIALIDAD, MOSTRAR_ESPECIALIDADES, EDITAR_ESPECIALIDAD, ELIMINAR_ESPECIALIDAD, LOADING, ERROR, MOSTRAR_ESPECIALIDAD, VALIDATE_ESPECIALIDAD } from '../actions/types';
 import axios from 'axios';
 
 export const mostrarEspecialidades = () => async dispatch => {
     try {
-        
+
         dispatch({
             type: LOADING
         });
 
         const token = localStorage.getItem('TOKEN');
-        const response = await axios.get('http://74.207.230.214/api/v1/specialties', {headers: {
-            Authorization: `Bearer ${token}`
-        }});
 
+        setTimeout(async function () {
+            const response = await axios.get('http://74.207.230.214/api/v1/specialties', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log(response.data);
+            dispatch({
+                type: MOSTRAR_ESPECIALIDADES,
+                payload: response.data
+            });
+        }, 3000);
+
+    } catch (e) {
+
+        console.log(e);
+
+        dispatch({
+            type: ERROR
+        })
+
+    }
+}
+
+
+export const mostrarEspeSelect = () => async dispatch => {
+    try {
+
+        dispatch({
+            type: LOADING
+        });
+
+        const token = localStorage.getItem('TOKEN');
+
+        const response = await axios.get('http://74.207.230.214/api/v1/specialties', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
         console.log(response.data);
-
         dispatch({
             type: MOSTRAR_ESPECIALIDADES,
             payload: response.data
@@ -39,25 +74,29 @@ export const agregarEspecialidad = specialityModel => async dispatch => {
         });
 
         const token = localStorage.getItem('TOKEN');
-        const response = await axios.post('http://74.207.230.214/api/v1/specialties', specialityModel, {headers: {
-            Authorization: `Bearer ${token}`
-        }});
+        const response = await axios.post('http://74.207.230.214/api/v1/specialties', specialityModel, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         console.log(response.data);
 
-        if(response.data.codRes == "00"){
+        if (response.data.codRes === "00") {
 
             dispatch({
-                type: AGREGAR_ESPECIALIDAD
+                type: AGREGAR_ESPECIALIDAD,
+                payload: response.data.codRes
             });
 
-        } else {
+        }
 
+        if (response.data.codRes === "01"){
             dispatch({
-                type: ERROR
+                type: AGREGAR_ESPECIALIDAD,
+                payload: response.data.codRes
             });
-
-        }        
+        }
 
     } catch (e) {
         console.log(e);
@@ -76,12 +115,14 @@ export const mostrarEspecialidad = specialityId => async dispatch => {
         });
 
         const token = localStorage.getItem('TOKEN');
-        const response = await axios.get(`http://74.207.230.214/api/v1/specialties/${specialityId}`, {headers: {
-            Authorization: `Bearer ${token}`
-        }});
+        const response = await axios.get(`http://74.207.230.214/api/v1/specialties/${specialityId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         console.log(response.data);
-        
+
         dispatch({
             type: MOSTRAR_ESPECIALIDAD,
             payload: response.data
@@ -96,6 +137,7 @@ export const mostrarEspecialidad = specialityId => async dispatch => {
     }
 }
 
+
 export const editarEspecialidad = specialityModel => async dispatch => {
 
     try {
@@ -105,22 +147,24 @@ export const editarEspecialidad = specialityModel => async dispatch => {
 
         console.log(specialityModel);
 
-        const {id} = specialityModel;
+        const { id } = specialityModel;
         const token = localStorage.getItem('TOKEN');
-        const response = await axios.put(`http://74.207.230.214/api/v1/specialties/${id}`, specialityModel, {headers: {
-            Authorization: `Bearer ${token}`
-        }});
+        const response = await axios.put(`http://74.207.230.214/api/v1/specialties/${id}`, specialityModel, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         console.log(response.data);
-        
-        if(response.data.codRes == "00"){
+
+        if (response.data.codRes === "00") {
             dispatch({
                 type: EDITAR_ESPECIALIDAD
             });
         } else {
             dispatch({
                 type: ERROR
-            });    
+            });
         }
 
     } catch (e) {
@@ -141,12 +185,14 @@ export const eliminarEspecialidad = specialityId => async dispatch => {
         });
 
         const token = localStorage.getItem('TOKEN');
-        const response = await axios.delete(`http://74.207.230.214/api/v1/specialties/${specialityId}`, {headers: {
-            Authorization: `Bearer ${token}`
-        }});
+        const response = await axios.delete(`http://74.207.230.214/api/v1/specialties/${specialityId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         console.log(response.data);
-        
+
         dispatch({
             type: ELIMINAR_ESPECIALIDAD
         });

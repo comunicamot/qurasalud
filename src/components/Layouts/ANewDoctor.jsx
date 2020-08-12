@@ -8,10 +8,10 @@ import store from 'store'
 import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
 import Select from 'react-select';
-import { mostrarEspecialidades } from '../../redux/actions/specialitiesActions';
+import { mostrarEspeSelect } from '../../redux/actions/specialitiesActions';
 import Loading from '../Layouts/Loading';
 
-const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspecialidades, userLogout}) => {
+const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, userLogout}) => {
 
     const [checked, setChecked] = useState(false);
     const [selectedSpecialities, setSelectedSpecialities] = useState(null);
@@ -36,7 +36,7 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspecialidade
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
 
-        mostrarEspecialidades();
+        mostrarEspeSelect();
     }, []);
 
     if (!isLoggedIn()) {
@@ -274,7 +274,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     agregarDoctor,
-    mostrarEspecialidades,
+    mostrarEspeSelect,
     userLogout
 }
 

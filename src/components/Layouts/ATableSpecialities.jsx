@@ -8,12 +8,7 @@ import Loading from '../Layouts/Loading';
 const ATableSpecialities = ({ mostrarEspecialidades, specialities, eliminarEspecialidad, loading, history }) => {
 
     useEffect(() => {
-
-        console.log("### FROM ATABLASPECIALITIES ###");
-        console.log(specialities);
-        
-        setTimeout(mostrarEspecialidades, 3000);
-
+        mostrarEspecialidades();
     }, []);
 
     const deleteSpeciality = id => {
@@ -21,7 +16,7 @@ const ATableSpecialities = ({ mostrarEspecialidades, specialities, eliminarEspec
         var answer = window.confirm("¿Eliminar especialidad?")
         if (answer) {
             eliminarEspecialidad(id);
-            setTimeout(mostrarEspecialidades, 3000);
+            mostrarEspecialidades();
         }
     }
 

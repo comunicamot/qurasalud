@@ -10,24 +10,26 @@ import SidenavMenu from './SidenavMenu';
 import Select from 'react-select';
 import { agregarEspecialidad } from '../../redux/actions/specialitiesActions';
 import validator from 'validator';
+import axios from 'axios';
 
-const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
+const ANewSpeciality = ({ history, userLogout, agregarEspecialidad, error }) => {
 
     const [formData, setFormData] = useState({
-        name: null,
-        price: null
+        name: "",
+        price: ""
     })
     const [user, setUser] = useState({
         id: null,
         email: null
     });
     const [formError, setFormError] = useState(false);
-    
+
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
+
     }, []);
-    
+
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
     }
@@ -44,13 +46,45 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
+    const validarEspecialidadUnico = async (arg) => {
+        try {
+            let rpt = true;
+            const token = localStorage.getItem('TOKEN');
+
+            const response = await axios.get('http://74.207.230.214/api/v1/specialties', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            const specialityName = arg.name.toString();
+
+            console.log(specialityName);
+
+            response.data.forEach(e => {
+                if (specialityName === e.name) {
+                    rpt = false;
+                }
+            });
+
+            return rpt;
+
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     const onSubmit = e => {
         e.preventDefault();
-        
-        if(validator.isNumeric(formData.price.toString())){
-            agregarEspecialidad(formData);
-            history.push('/especialidades');
-        }else{
+        if (validator.isNumeric(formData.price.toString())) {
+            validarEspecialidadUnico(formData).then(res => {
+                if (res) {
+                    agregarEspecialidad(formData);
+                    history.push('/especialidades');
+                } else {
+                    setFormError(true);
+                }
+            });
+        } else {
             setFormError(true);
         }
     }
@@ -59,7 +93,7 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
         <>
             <div className="nav-fixed">
                 <nav className="topnav navbar navbar-expand shadow navbar-light bg-white" id="sidenavAccordion">
-                    <Link className="navbar-brand active" to='/tablero'>Qurasalud</Link>
+                    <Link className="navbar-brand active" to='/perfil'>Qurasalud</Link>
                     <button className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
                     <form className="form-inline mr-auto d-none d-md-block">
                         <div className="input-group input-group-joined input-group-solid">
@@ -203,14 +237,14 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
                                         <form onSubmit={onSubmit}>
                                             <div class="form-group">
                                                 <label for="name">Nombre*</label>
-                                                <input class="form-control" id="name" type="text" placeholder="Nombre de la especialidad" onChange={onChange} name="name" required/>
+                                                <input class="form-control" id="name" type="text" placeholder="Nombre de la especialidad" onChange={onChange} name="name" required />
                                                 <label for="price">Precio*</label>
-                                                <input class="form-control" id="price" type="text" placeholder="Precio de la especialidad" onChange={onChange} name="price" required maxLength="6" minLength="2"/>                     
+                                                <input class="form-control" id="price" type="text" placeholder="Precio de la especialidad" onChange={onChange} name="price" required maxLength="6" minLength="2" />
                                             </div>
                                             <button className="btn btn-primary">Guardar</button>
                                             <Link to='/especialidades'><button className="btn btn-default">Cancelar</button></Link>
                                             {
-                                                formError ? (<div class="alert alert-dark" role="alert"> Hubo un error al registrar la especialidad</div>) : (<></>)
+                                                formError ? (<div class="alert alert-dark" role="alert"> Hubo un error al registrar la especialidad. <br/> -El campo nombre debe ser unico </div>) : (<></>)
                                             }
                                         </form>
                                     </div>
@@ -226,4 +260,14 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad }) => {
     )
 }
 
-export default connect(null, {agregarEspecialidad, userLogout })(ANewSpeciality);
+const mapStateToProps = state => ({
+    specialities: state.specialities.specialities,
+    error: state.specialities.error
+});
+
+const mapDispatchToProps = {
+    agregarEspecialidad,
+    userLogout
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ANewSpeciality);
