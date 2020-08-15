@@ -9,5 +9,6 @@ export default combineReducers({
     login: loginReducers,
     doctors: doctorsReducers,
     specialities: specialitiesReducers,
+    patients: patientsReducers,
     turns: turnsReducers
 });

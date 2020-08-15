@@ -5,6 +5,14 @@ import { connect } from 'react-redux';
 import { mostrarPacientes, eliminarPaciente, mostrarPaciente } from '../../redux/actions/patientsActions';
 import Loading from './Loading';
 
+const mapStateToProps = state => ({
+    loading: state.patients.loading,
+    patients: state.patients.patients
+});
+const mapDispatchToProps = {
+    mostrarPacientes,
+    eliminarPaciente
+}
 const ATablePatients = ({ history, mostrarPacientes, loading, patients, eliminarPaciente }) => {
 
     const [patientsFiltered, setPatientsFiltered] = useState([]);
@@ -85,16 +93,6 @@ const ATablePatients = ({ history, mostrarPacientes, loading, patients, eliminar
             </>
         )
     }
-}
-
-const mapStateToProps = state => ({
-    loading: state.patients.loading,
-    patients: state.patients.patients
-});
-
-const mapDispatchToProps = {
-    mostrarPacientes,
-    eliminarPaciente
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ATablePatients);
