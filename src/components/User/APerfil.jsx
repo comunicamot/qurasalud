@@ -6,10 +6,13 @@ import store from 'store';
 import SidenavMenu from '../Layouts/SidenavMenu';
 import { userLogout, adminUpdateInfo, downladAvatar, uploadAvatar } from '../../redux/actions/user/loginActions';
 import Loading from '../Layouts/Loading';
+import validator from 'validator';
+import $ from 'jquery';
 
 const mapStateToProps = state => ({
     user: state.login.user,
-    update_avatar: state.login.update_avatar
+    update_avatar: state.login.update_avatar,
+    update_info: state.login.update_info
 });
 
 const mapDispatchToProps = {
@@ -19,11 +22,11 @@ const mapDispatchToProps = {
     uploadAvatar
 }
 
-const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAvatar, update_avatar }) => {
+const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAvatar, update_avatar, update_info }) => {
 
     const [user, setUser] = useState({
-        id: null,
-        email: null
+        id: "",
+        email: ""
     });
     const [formDataAdmin, setFormDataAdmin] = useState({
         email: "",
@@ -41,8 +44,18 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
 
     useEffect(() => {
         downladAvatar();
-        
+
     }, [update_avatar]);
+
+    useEffect(() => {
+        if (update_info) {
+            $("#exampleModalCenter").modal({
+                backdrop: 'static',
+                keyboard: false  // to prevent closing with Esc button (if you want this too)
+            });
+            handleLogout();
+        }
+    }, [update_info]);
 
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
@@ -65,8 +78,12 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
 
     const onSubmitAdmin = e => {
         e.preventDefault();
-        // Modify admin information
+        console.log(formDataAdmin);
+        if (formDataAdmin.email.length <= 0) {
+            formDataAdmin.email = user.email;
+        }
         adminUpdateInfo(formDataAdmin);
+
     }
 
     const onFileChange = event => {
@@ -288,6 +305,18 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
 
                     </div>
 
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalCenterTitle">Cambio de información como administrador</h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        </div>
+                        <div class="modal-body">Sus datos han sido cambiados satisfactoriamente, por favor vuelva a iniciar sesión.</div>
+                        <div class="modal-footer"><button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button></div>
+                    </div>
                 </div>
             </div>
         </>
