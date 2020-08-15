@@ -1,42 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { agregarDoctor } from '../../redux/actions/doctorsActions';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
-import store from 'store'
+import store from 'store';
+import SidenavMenu from '../Layouts/SidenavMenu';
+import PSidenavMenu from '../Layouts/PSidenavMenu';
+import adminPng from '../../images/admin.png';
 import { userLogout } from '../../redux/actions/user/loginActions';
-import SidenavMenu from './SidenavMenu';
-import Select from 'react-select';
-import { mostrarEspeSelect } from '../../redux/actions/specialitiesActions';
-import Loading from '../Layouts/Loading';
+import axios from 'axios'
 
-const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, userLogout }) => {
+const PPerfil = ({ history, userLogout }) => {
 
-    const [checked, setChecked] = useState(false);
-    const [selectedSpecialities, setSelectedSpecialities] = useState([]);
-    const [formData, setFormData] = useState({
+    const [user, setUser] = useState({
+        id: null,
+        email: null
+    });
+    const [patient, setPatient] = useState({
+        id: "",
         name: "",
         last_name: "",
-        email: "",
         phone: "",
-        facebook: "",
-        linkedin: "",
-        description: "",
-        tuition: "",
-        outstanding: "",
-        specialties: ""
+        address: "",
+        talla: "",
+        peso: ""
     });
-    const [user, setUser] = useState({
-        id: "",
-        email: ""
-    });
-    const [formError, setFormError] = useState(null);
+
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [editInfo, setEditInfo] = useState(false);
+    const [chooseFile, setChooseFile] = useState(false);
+    const [formPatient, setFormPatient] = useState({
+        name: "",
+        last_name: "",
+        phone: "",
+        address: "",
+        talla: "",
+        peso: ""
+    })
+
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
-
-        mostrarEspeSelect();
+        if (localStorage.getItem('PATIENT')) {
+            const patient = JSON.parse(localStorage.getItem('PATIENT'));
+            setPatient(patient);
+        }
     }, []);
+
+    const onChangePatient = e => {
+        setFormPatient({ ...formPatient, [e.target.name]: e.target.value });
+    }
 
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
@@ -47,50 +59,41 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
+        if (localStorage.getItem('PATIENT')) {
+            localStorage.removeItem('PATIENT');
+        }
         history.push('/login');
     }
 
-    const selectSpecialities = () => {
-        const list = []
-        specialities.forEach(s => {
-            list.push({ label: s.name, value: s.id });
+    const onFileChange = event => {
+        // Update the state 
+        setSelectedFile(event.target.files[0]);
+    };
+
+    const onFileUpload = async () => {
+        const formData = new FormData();
+        formData.append("avatar", selectedFile, selectedFile.name);
+        console.log(selectedFile);
+
+        const token = localStorage.getItem('TOKEN');
+        const responseUpload = await axios.post('http://74.207.230.214/api/v1/image', formData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         });
-        return list;
+        console.log(responseUpload.data);
+        setSelectedFile(null);
     }
 
-    const onChange = e => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
-
-    const handleSpecialities = e => {
-        setSelectedSpecialities(e);
+    const thisFileUpload = () => {
+        document.getElementById("avatar").click();
+        setChooseFile(true);
     }
 
     const onSubmit = e => {
         e.preventDefault();
-        formData.outstanding = checked;
-        if (formData.tuition.length <= 9) {
-            if (selectedSpecialities) {
-                if (selectedSpecialities.length > 0) {
-
-                    formData.specialties = selectedSpecialities.map(s => {
-                        return { id: s.value }
-                    });
-
-                    console.log(formData);
-                    agregarDoctor(formData);
-                    history.push('/medicos');
-
-                } else {
-                    setFormError("El campo especialidad es obligatorio.");
-                }
-            } else {
-                setFormError("El campo especialidad es obligatorio.");
-            }
-        } else {
-            setFormError("El campo matrícula no cumple con los requerimientos.");
-        }
-
+        console.log(formPatient);
+        
     }
 
     return (
@@ -101,7 +104,7 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
                     <button className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
                     <form className="form-inline mr-auto d-none d-md-block">
                         <div className="input-group input-group-joined input-group-solid">
-                            <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
+                            <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Buscar ..." />
                             <div className="input-group-append">
                                 <div className="input-group-text"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
                             </div>
@@ -110,6 +113,9 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
                     <ul className="navbar-nav align-items-center ml-auto">
                         <li className="nav-item dropdown no-caret mr-3 d-none d-md-inline">
                             <a className="nav-link dropdown-toggle" id="navbarDropdownDocs" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <div className="d-none d-md-inline">
+                                    <button className="btn btn-outline-primary rounded-pill" type="button">Reservar cita</button>
+                                </div>
                             </a>
                         </li>
                         <li className="nav-item dropdown no-caret mr-3 d-md-none">
@@ -130,8 +136,8 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
                             <div className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownAlerts">
                                 <h6 className="dropdown-header dropdown-notifications-header">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-bell mr-2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                          Alerts Center
-                      </h6>
+                      Alerts Center
+                  </h6>
                                 <a className="dropdown-item dropdown-notifications-item" href="#!">
                                     <div className="dropdown-notifications-item-icon bg-warning"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
                                     <div className="dropdown-notifications-item-content">
@@ -168,8 +174,8 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
                             <div className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownMessages">
                                 <h6 className="dropdown-header dropdown-notifications-header">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-mail mr-2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                          Message Center
-                      </h6>
+                      Message Center
+                  </h6>
                                 <a className="dropdown-item dropdown-notifications-item" href="#!">
                                     <img className="dropdown-notifications-item-img" src="https://source.unsplash.com/vTL_qy03D1I/60x60" />
                                     <div className="dropdown-notifications-item-content">
@@ -188,24 +194,24 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
                             </div>
                         </li>
                         <li className="nav-item dropdown no-caret mr-2 dropdown-user">
-                            <a className="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img className="img-fluid" src={localStorage.getItem('AVATAR')} /></a>
+                            <a className="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img className="img-fluid" src="https://source.unsplash.com/QAB-WJcbgJk/60x60" /></a>
                             <div className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
                                 <h6 className="dropdown-header d-flex align-items-center">
-                                    <img className="dropdown-user-img" src={localStorage.getItem('AVATAR')} />
+                                    <img className="dropdown-user-img" src="https://source.unsplash.com/QAB-WJcbgJk/60x60" />
                                     <div className="dropdown-user-details">
-                                        <div className="dropdown-user-details-name"> Admin </div>
+                                        <div className="dropdown-user-details-name"> {patient.name} {patient.last_name} </div>
                                         <div className="dropdown-user-details-email"> {user.email} </div>
                                     </div>
                                 </h6>
                                 <div className="dropdown-divider"></div>
                                 <Link className="dropdown-item" >
                                     <div className="dropdown-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
-                                        Cuenta
-                                    </Link>
+                      Cuenta
+                  </Link>
                                 <button className="dropdown-item" onClick={() => { handleLogout() }}>
                                     <div className="dropdown-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div>
-                          Salir
-                      </button>
+                      Salir
+                  </button>
                             </div>
                         </li>
                     </ul>
@@ -213,66 +219,136 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
 
                 <div id="layoutSidenav">
                     <div id="layoutSidenav_nav">
-                        <SidenavMenu></SidenavMenu>
+
+                        <PSidenavMenu />
+
                     </div>
 
                     <div id="layoutSidenav_content">
 
                         <main>
-                            <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
-                                <div class="container">
-                                    <div class="page-header-content pt-4">
-                                        <div class="row align-items-center justify-content-between">
-                                            <div class="col-auto mt-4">
-                                                <h1 class="page-header-title">
-                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layout"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
-                                            Médicos
+                            <header className="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                                <div className="container-fluid">
+                                    <div className="page-header-content">
+                                        <div className="row align-items-center justify-content-between pt-3">
+                                            <div className="col-auto mb-3">
+                                                <h1 className="page-header-title">
+                                                    <div className="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" stroke-linecap="round" strokeLinejoin="round" className="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                                            Cuenta - Perfil
                                         </h1>
-                                                <div class="page-header-subtitle">Mantenimiento de médicos</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </header>
-                            <div class="container mt-n10">
-                                <div class="card mb-4">
-                                    <div class="card-header">Agregar un nuevo médico</div>
-                                    <div class="card-body">
-                                        <form onSubmit={onSubmit}>
-                                            <div class="form-group">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input class="custom-control-input" id="outstanding" type="checkbox" name="outstanding" onChange={() => setChecked(!checked)} />
-                                                    <label class="custom-control-label" for="outstanding">Sobresaliente</label>
-                                                </div>
-                                                <label for="name">Nombres*</label><input class="form-control" id="name" type="text" placeholder="Nombres del medico" onChange={onChange} name="name" required />
-                                                <label for="last_name">Apellidos*</label><input class="form-control" id="last_name" type="text" placeholder="Apellidos del medico" onChange={onChange} name="last_name" required />
-                                                <label for="email">Email*</label><input class="form-control" id="email" type="email" placeholder="Email del medico" onChange={onChange} name="email" required />
-                                                <label for="phone">Teléfono*</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del medico" onChange={onChange} name="phone" required maxLength="12" minLength="8" />
-                                                <label for="facebook">Facebook</label><input class="form-control" id="facebook" type="text" placeholder="Facebook del medico" onChange={onChange} name="facebook" />
-                                                <label for="linkedin">Linkedin</label><input class="form-control" id="linkedin" type="text" placeholder="Linkedin del medico" onChange={onChange} name="linkedin" />
-                                                <label for="description">Descripción*</label><textarea class="form-control" id="description" type="text" placeholder="Descripcion del medico" onChange={onChange} name="description" required />
-                                                <label for="tuition">Matrícula*</label><input class="form-control" id="tuition" type="number" placeholder="Matrícula del medico" onChange={onChange} name="tuition" required maxLength="9" minLength="2" />
-                                                <label for="specialities">Especialidad*</label>
-                                                <Select options={selectSpecialities()} id="specialities" name="specialities" isMulti onChange={handleSpecialities} />
+                            <div className="container mt-4">
+                                <nav className="nav nav-borders">
+                                    <Link className="nav-link ml-0" to='/profile'>Perfil</Link>
+                                    <Link className="nav-link" to='/medical_history'>Antecendentes Médicos</Link>
+                                </nav>
+                                <hr className="mt-0 mb-4" />
+                                <div className="row">
+                                    <div className="col-xl-4">
+                                        <div className="card">
+                                            <div className="card-header">Foto de perfil</div>
+                                            <div className="card-body text-center">
+                                                <img className="img-account-profile rounded-circle mb-2" src="https://source.unsplash.com/QAB-WJcbgJk/300x300" alt="" />
+                                                <div className="small font-italic text-muted mb-4">JPG o PNG no mayor a 5 MB</div>
+                                                <input type="file" id="avatar" style={{ display: 'none' }} />
 
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-xl-8">
+                                        <div className="card mb-4">
+                                            <div className="card-header">Detalles de la cuenta</div>
+                                            <div className="card-body">
+                                                {
+                                                    editInfo ? <form onSubmit={onSubmit}>
+                                                        <div className="form-row">
+                                                            <div className="form-group col-md-6">
+                                                                <label className="small mb-1" htmlFor="firstname">Nombres</label>
+                                                                <input className="form-control" id="firstname" name="firstname" type="text" placeholder="Ingrese sus nombres" defaultValue={patient.name} required onChange={onChangePatient}/>
+                                                            </div>
+                                                            <div className="form-group col-md-6">
+                                                                <label className="small mb-1" htmlFor="last_name">Apellidos</label>
+                                                                <input className="form-control" id="last_name" name="last_name" type="text" placeholder="Ingrese sus apellidos" defaultValue={patient.last_name} required onChange={onChangePatient}/>
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <label className="small mb-1" htmlFor="email">Correo electrónico</label>
+                                                            <input className="form-control" id="email" name="email" type="email" placeholder="Ingrese su correo electrónico" defaultValue={user.email} required onChange={onChangePatient}/>
+                                                        </div>
+                                                        <div className="form-row">
+                                                            <div className="form-group col-md-6">
+                                                                <label className="small mb-1" htmlFor="size">Talla</label>
+                                                                <input className="form-control" id="size" name="size" type="text" placeholder="Ingrese su talla" defaultValue={patient.talla} required maxLength="4" minLength="1"onChange={onChangePatient}/>
+                                                            </div>
+                                                            <div className="form-group col-md-6">
+                                                                <label className="small mb-1" htmlFor="weight">Peso</label>
+                                                                <input className="form-control" id="weight" name="weight" type="text" placeholder="Ingrese su peso" defaultValue={patient.peso} required maxLength="4" minLength="1" onChange={onChangePatient}/>
+                                                            </div>
+                                                        </div>
 
-                                            {
-                                                formError ? (<div class="alert alert-dark" role="alert">
-                                                    {formError}
-                                                </div>) : (<></>)
-                                            }
+                                                        <div className="form-row">
+                                                            <div className="form-group col-md-4">
+                                                                <label className="small mb-1" htmlFor="telephone">Telefono</label>
+                                                                <input className="form-control" id="telephone" name="telephone" type="tel" placeholder="Ingrese su telefono" defaultValue={patient.phone} required maxLength="9" minLength="7" onChange={onChangePatient}/>
+                                                            </div>
+                                                            <div className="form-group col-md-8">
+                                                                <label className="small mb-1" htmlFor="address">Dirección</label>
+                                                                <input className="form-control" id="address" name="address" type="text" name="address" placeholder="Ingrese su dirección" defaultValue={patient.address} required onChange={onChangePatient}/>
+                                                            </div>
+                                                        </div>
 
-                                            <button className="btn btn-primary">Guardar</button>
-                                            <Link to='/medicos'><button className="btn btn-default">Cancelar</button></Link>
-                                        </form>
+                                                        <div className="btn-group"><button className="btn btn-primary" type="submit">Guardar</button><button className="btn btn-light" type="button" onClick={() => { setEditInfo(false) }}>Cancelar</button></div>
+                                                    </form> : <form>
+                                                            <div className="form-row">
+                                                                <div className="form-group col-md-6">
+                                                                    <label className="small mb-1" htmlFor="firstname">Nombres</label>
+                                                                    <input className="form-control" id="firstname" name="firstname" type="text" value={patient.name} disabled />
+                                                                </div>
+                                                                <div className="form-group col-md-6">
+                                                                    <label className="small mb-1" htmlFor="last_name">Apellidos</label>
+                                                                    <input className="form-control" id="last_name" name="last_name" type="text" value={patient.last_name} disabled />
+                                                                </div>
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label className="small mb-1" htmlFor="email">Correo electrónico</label>
+                                                                <input className="form-control" id="email" name="email" type="email" value={user.email} disabled />
+                                                            </div>
+                                                            <div className="form-row">
+                                                                <div className="form-group col-md-6">
+                                                                    <label className="small mb-1" htmlFor="size">Talla</label>
+                                                                    <input className="form-control" id="size" name="size" type="text" value={patient.talla} disabled />
+                                                                </div>
+                                                                <div className="form-group col-md-6">
+                                                                    <label className="small mb-1" htmlFor="weight">Peso</label>
+                                                                    <input className="form-control" id="weight" name="weight" type="text" value={patient.peso} disabled />
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="form-row">
+                                                                <div className="form-group col-md-4">
+                                                                    <label className="small mb-1" htmlFor="telephone">Telefono</label>
+                                                                    <input className="form-control" id="telephone" name="telephone" type="tel" value={patient.phone} disabled />
+                                                                </div>
+                                                                <div className="form-group col-md-8">
+                                                                    <label className="small mb-1" htmlFor="address">Dirección</label>
+                                                                    <input className="form-control" id="address" name="address" type="text" name="address" value={patient.address} disabled />
+                                                                </div>
+                                                            </div>
+                                                            <button className="btn btn-primary" type="button" onClick={() => { setEditInfo(true) }}>Editar</button>
+                                                        </form>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </main>
 
                     </div>
-
                 </div>
             </div>
         </>
@@ -280,13 +356,7 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
 }
 
 const mapStateToProps = state => ({
-    specialities: state.specialities.specialities
+    user: state.login.user
 });
 
-const mapDispatchToProps = {
-    agregarDoctor,
-    mostrarEspeSelect,
-    userLogout
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ANewDoctor);
+export default connect(mapStateToProps, { userLogout })(PPerfil);

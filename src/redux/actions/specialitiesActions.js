@@ -21,7 +21,7 @@ export const mostrarEspecialidades = () => async dispatch => {
                 type: MOSTRAR_ESPECIALIDADES,
                 payload: response.data
             });
-        }, 3000);
+        }, 1000);
 
     } catch (e) {
 

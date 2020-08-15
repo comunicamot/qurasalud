@@ -58,14 +58,27 @@ const SidenavMenu = ({ history }) => {
                             <Link class="nav-link" to='/medicos'>
                                 Listar médico
                                     </Link>
+                            <Link class="nav-link" to='/horario_medico'>
+                                Horarios
+                                    </Link>
                         </nav>
                     </div>
 
-                    <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collapsed2" aria-expanded="false" aria-controls="collapsePages">
+                    <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collpasePatients" aria-expanded="false" aria-controls="collapsePages">
                         <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
                                     Pacientes
-                                    <div className="sidenav-collapse-arrow"></div>
+                                    <div class="sidenav-collapse-arrow"><svg class="svg-inline--fa fa-angle-down fa-w-10" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg=""><path fill="currentColor" d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path></svg></div>
                     </a>
+                    <div class="collapse show" id="collpasePatients" data-parent="#accordionSidenavPages" >
+                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                            <Link class="nav-link" to='/nuevo_paciente'>
+                                Agregar Paciente
+                                    </Link>
+                            <Link class="nav-link" to='/pacientes'>
+                                Listar Pacientes
+                                    </Link>
+                        </nav>
+                    </div>
                     <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collapsed3" aria-expanded="false" aria-controls="collapsePages">
                         <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
                                     Citas
@@ -87,13 +100,6 @@ const SidenavMenu = ({ history }) => {
                                     </Link>
                         </nav>
                     </div>
-
-                    <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collapsed3" aria-expanded="false" aria-controls="collapsePages">
-                        <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-                                    Horario
-                                    <div className="sidenav-collapse-arrow"></div>
-                    </a>
-
 
                 </div>
             </div>

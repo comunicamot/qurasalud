@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import ATableSpecialities from './ATableSpecialities'
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
-import adminPng from '../../images/admin.png'
 import store from 'store'
 import { connect } from 'react-redux';
 import { userLogout } from '../../redux/actions/user/loginActions';
@@ -35,7 +34,7 @@ const ASpecialities = ({ history }) => {
         <>
             <div className="nav-fixed">
                 <nav className="topnav navbar navbar-expand shadow navbar-light bg-white" id="sidenavAccordion">
-                    <Link className="navbar-brand active" to='/tablero'>Qurasalud</Link>
+                    <Link className="navbar-brand active" to='/perfil'>Qurasalud</Link>
                     <button className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
                     <form className="form-inline mr-auto d-none d-md-block">
                         <div className="input-group input-group-joined input-group-solid">
@@ -126,10 +125,10 @@ const ASpecialities = ({ history }) => {
                             </div>
                         </li>
                         <li className="nav-item dropdown no-caret mr-2 dropdown-user">
-                            <a className="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img className="img-fluid" src={adminPng} /></a>
+                            <a className="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img className="img-fluid" src={localStorage.getItem('AVATAR')} /></a>
                             <div className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
                                 <h6 className="dropdown-header d-flex align-items-center">
-                                    <img className="dropdown-user-img" src={adminPng} />
+                                    <img className="dropdown-user-img" src={localStorage.getItem('AVATAR')} />
                                     <div className="dropdown-user-details">
                                         <div className="dropdown-user-details-name"> Admin </div>
                                         <div className="dropdown-user-details-email"> {user.email} </div>

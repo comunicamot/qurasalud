@@ -1,98 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { agregarDoctor } from '../../redux/actions/doctorsActions';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
-import store from 'store'
+import store from 'store';
+import PSidenavMenu from '../Layouts/PSidenavMenu';
 import { userLogout } from '../../redux/actions/user/loginActions';
-import SidenavMenu from './SidenavMenu';
-import Select from 'react-select';
-import { mostrarEspeSelect } from '../../redux/actions/specialitiesActions';
-import Loading from '../Layouts/Loading';
+import axios from 'axios'
 
-const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, userLogout }) => {
+const PMedicalHistory = ({ history, userLogout }) => {
 
-    const [checked, setChecked] = useState(false);
-    const [selectedSpecialities, setSelectedSpecialities] = useState([]);
-    const [formData, setFormData] = useState({
-        name: "",
-        last_name: "",
-        email: "",
-        phone: "",
-        facebook: "",
-        linkedin: "",
-        description: "",
-        tuition: "",
-        outstanding: "",
-        specialties: ""
-    });
     const [user, setUser] = useState({
-        id: "",
-        email: ""
+        id: null,
+        email: null
     });
-    const [formError, setFormError] = useState(null);
+    const [patient, setPatient] = useState({
+        id: null,
+        name: null,
+        last_name: null,
+        phone: null,
+        address: null,
+        talla: null,
+        peso: null
+    });
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
-
-        mostrarEspeSelect();
+        if (localStorage.getItem('PATIENT')) {
+            const patient = JSON.parse(localStorage.getItem('PATIENT'));
+            setPatient(patient);
+        }
     }, []);
-
-    if (!isLoggedIn()) {
-        return <Redirect to='/login'></Redirect>
-    }
-
     const handleLogout = () => {
         store.remove('loggedIn');
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
+        if (localStorage.getItem('PATIENT')) {
+            localStorage.removeItem('PATIENT');
+        }
         history.push('/login');
     }
-
-    const selectSpecialities = () => {
-        const list = []
-        specialities.forEach(s => {
-            list.push({ label: s.name, value: s.id });
-        });
-        return list;
-    }
-
-    const onChange = e => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
-
-    const handleSpecialities = e => {
-        setSelectedSpecialities(e);
-    }
-
-    const onSubmit = e => {
-        e.preventDefault();
-        formData.outstanding = checked;
-        if (formData.tuition.length <= 9) {
-            if (selectedSpecialities) {
-                if (selectedSpecialities.length > 0) {
-
-                    formData.specialties = selectedSpecialities.map(s => {
-                        return { id: s.value }
-                    });
-
-                    console.log(formData);
-                    agregarDoctor(formData);
-                    history.push('/medicos');
-
-                } else {
-                    setFormError("El campo especialidad es obligatorio.");
-                }
-            } else {
-                setFormError("El campo especialidad es obligatorio.");
-            }
-        } else {
-            setFormError("El campo matrícula no cumple con los requerimientos.");
-        }
-
-    }
-
     return (
         <>
             <div className="nav-fixed">
@@ -101,7 +48,7 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
                     <button className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
                     <form className="form-inline mr-auto d-none d-md-block">
                         <div className="input-group input-group-joined input-group-solid">
-                            <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
+                            <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Buscar ..." />
                             <div className="input-group-append">
                                 <div className="input-group-text"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
                             </div>
@@ -110,6 +57,9 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
                     <ul className="navbar-nav align-items-center ml-auto">
                         <li className="nav-item dropdown no-caret mr-3 d-none d-md-inline">
                             <a className="nav-link dropdown-toggle" id="navbarDropdownDocs" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <div className="d-none d-md-inline">
+                                    <button className="btn btn-outline-primary rounded-pill" type="button">Reservar cita</button>
+                                </div>
                             </a>
                         </li>
                         <li className="nav-item dropdown no-caret mr-3 d-md-none">
@@ -188,20 +138,20 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
                             </div>
                         </li>
                         <li className="nav-item dropdown no-caret mr-2 dropdown-user">
-                            <a className="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img className="img-fluid" src={localStorage.getItem('AVATAR')} /></a>
+                            <a className="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img className="img-fluid" src="https://source.unsplash.com/QAB-WJcbgJk/60x60" /></a>
                             <div className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
                                 <h6 className="dropdown-header d-flex align-items-center">
-                                    <img className="dropdown-user-img" src={localStorage.getItem('AVATAR')} />
+                                    <img className="dropdown-user-img" src="https://source.unsplash.com/QAB-WJcbgJk/60x60" />
                                     <div className="dropdown-user-details">
-                                        <div className="dropdown-user-details-name"> Admin </div>
+                                        <div className="dropdown-user-details-name"> {patient.name} {patient.last_name} </div>
                                         <div className="dropdown-user-details-email"> {user.email} </div>
                                     </div>
                                 </h6>
                                 <div className="dropdown-divider"></div>
                                 <Link className="dropdown-item" >
                                     <div className="dropdown-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
-                                        Cuenta
-                                    </Link>
+                          Cuenta
+                      </Link>
                                 <button className="dropdown-item" onClick={() => { handleLogout() }}>
                                     <div className="dropdown-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div>
                           Salir
@@ -213,66 +163,68 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
 
                 <div id="layoutSidenav">
                     <div id="layoutSidenav_nav">
-                        <SidenavMenu></SidenavMenu>
+
+                        <PSidenavMenu />
+
                     </div>
 
                     <div id="layoutSidenav_content">
 
                         <main>
-                            <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
-                                <div class="container">
-                                    <div class="page-header-content pt-4">
-                                        <div class="row align-items-center justify-content-between">
-                                            <div class="col-auto mt-4">
+                            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                                <div class="container-fluid">
+                                    <div class="page-header-content">
+                                        <div class="row align-items-center justify-content-between pt-3">
+                                            <div class="col-auto mb-3">
                                                 <h1 class="page-header-title">
-                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layout"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
-                                            Médicos
+                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                                            Cuenta - Antecedentes Médicos
                                         </h1>
-                                                <div class="page-header-subtitle">Mantenimiento de médicos</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </header>
-                            <div class="container mt-n10">
-                                <div class="card mb-4">
-                                    <div class="card-header">Agregar un nuevo médico</div>
-                                    <div class="card-body">
-                                        <form onSubmit={onSubmit}>
-                                            <div class="form-group">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input class="custom-control-input" id="outstanding" type="checkbox" name="outstanding" onChange={() => setChecked(!checked)} />
-                                                    <label class="custom-control-label" for="outstanding">Sobresaliente</label>
-                                                </div>
-                                                <label for="name">Nombres*</label><input class="form-control" id="name" type="text" placeholder="Nombres del medico" onChange={onChange} name="name" required />
-                                                <label for="last_name">Apellidos*</label><input class="form-control" id="last_name" type="text" placeholder="Apellidos del medico" onChange={onChange} name="last_name" required />
-                                                <label for="email">Email*</label><input class="form-control" id="email" type="email" placeholder="Email del medico" onChange={onChange} name="email" required />
-                                                <label for="phone">Teléfono*</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del medico" onChange={onChange} name="phone" required maxLength="12" minLength="8" />
-                                                <label for="facebook">Facebook</label><input class="form-control" id="facebook" type="text" placeholder="Facebook del medico" onChange={onChange} name="facebook" />
-                                                <label for="linkedin">Linkedin</label><input class="form-control" id="linkedin" type="text" placeholder="Linkedin del medico" onChange={onChange} name="linkedin" />
-                                                <label for="description">Descripción*</label><textarea class="form-control" id="description" type="text" placeholder="Descripcion del medico" onChange={onChange} name="description" required />
-                                                <label for="tuition">Matrícula*</label><input class="form-control" id="tuition" type="number" placeholder="Matrícula del medico" onChange={onChange} name="tuition" required maxLength="9" minLength="2" />
-                                                <label for="specialities">Especialidad*</label>
-                                                <Select options={selectSpecialities()} id="specialities" name="specialities" isMulti onChange={handleSpecialities} />
-
+                            <div class="container mt-4">
+                                <nav class="nav nav-borders">
+                                    <Link className="nav-link ml-0" to='/profile'>Perfil</Link>
+                                    <Link className="nav-link" to='/medical_history'>Antecendentes Médicos</Link>
+                                </nav>
+                                <hr class="mt-0 mb-4" />
+                                <div class="row">
+                                    <div class="col-xl-12">
+                                        <div class="card mb-4">
+                                            <div class="card-header">Detalles del paciente</div>
+                                            <div class="card-body">
+                                                <form>
+                                                    <div class="form-group">
+                                                        <label class="small mb-1" for="antecedentes">Antecedentes médicos</label>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input class="custom-control-input" id="check1" type="checkbox" />
+                                                            <label class="custom-control-label" for="check1">Custom Checkbox 1</label>
+                                                        </div>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input class="custom-control-input" id="check2" type="checkbox" />
+                                                            <label class="custom-control-label" for="check2">Custom Checkbox 2</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="small mb-1" for="inputEmailAddress">Antecedentes Quirúrgicos</label>
+                                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="small mb-1" for="inputEmailAddress">Alergias a medicinas</label>
+                                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                                                    </div>
+                                                    <button class="btn btn-primary" type="button">Guardar cambios</button>
+                                                </form>
                                             </div>
-
-                                            {
-                                                formError ? (<div class="alert alert-dark" role="alert">
-                                                    {formError}
-                                                </div>) : (<></>)
-                                            }
-
-                                            <button className="btn btn-primary">Guardar</button>
-                                            <Link to='/medicos'><button className="btn btn-default">Cancelar</button></Link>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </main>
-
                     </div>
-
                 </div>
             </div>
         </>
@@ -280,13 +232,10 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
 }
 
 const mapStateToProps = state => ({
-    specialities: state.specialities.specialities
-});
 
+});
 const mapDispatchToProps = {
-    agregarDoctor,
-    mostrarEspeSelect,
     userLogout
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ANewDoctor);
+export default connect(mapStateToProps, mapDispatchToProps)(PMedicalHistory);

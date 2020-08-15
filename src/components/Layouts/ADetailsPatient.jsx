@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
 import adminPng from '../../images/admin.png'
@@ -7,32 +7,41 @@ import store from 'store';
 import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
 import Select from 'react-select';
-import { mostrarEspecialidad, editarEspecialidad } from '../../redux/actions/specialitiesActions';
+import { mostrarPaciente, editarPaciente } from '../../redux/actions/patientsActions';
 import Loading from '../Layouts/Loading';
 import validator from 'validator';
 
-const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_details, loading, userLogout, match, history}) => {
+const ADetailsPatient = ({ loading, userLogout, match, history, patient_details, mostrarPaciente, edited, editarPaciente }) => {
 
     const [formData, setFormData] = useState({
-        id: 0,
+        id: "",
         name: "",
-        price: 0
+        email: "",
+        last_name: "",
+        phone: "",
+        address: "",
+        talla: "",
+        peso: "",
+        surgical_history: "",
+        allergies_medicines: "",
+        password: "",
+        confirmPassword: ""
     });
     const [user, setUser] = useState({
         id: null,
         email: null
     });
-    const [formError, setFormError] = useState(false);
+    const [formError, setFormError] = useState(null);
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
-        mostrarEspecialidad(match.params.id);
+        mostrarPaciente(match.params.id);
     }, []);
 
-    useEffect(()=>{
-        settearDataForm();
-    }, [speciality_details])
-    
+    useEffect(() => {
+        setDataForm();
+    }, [patient_details])
+
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
     }
@@ -41,12 +50,19 @@ const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
-    const settearDataForm = () => {
-        const speciality = speciality_details;
-        if(speciality){
+    const setDataForm = () => {
+        if(patient_details[0]){
             setFormData({
-                name: speciality.name,
-                price: speciality.price
+                id: patient_details[0].id,
+                name: patient_details[0].name,
+                email: patient_details[0].email,
+                last_name: patient_details[0].last_name,
+                phone: patient_details[0].phone,
+                address: patient_details[0].address,
+                talla: patient_details[0].talla,
+                peso: patient_details[0].peso,
+                surgical_history: patient_details[0].surgical_history,
+                allergies_medicines: patient_details[0].allergies_medicines
             });
         }
     }
@@ -61,17 +77,22 @@ const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_
 
     const onSubmit = e => {
         e.preventDefault();
-        formData.id = match.params.id;
-        if(validator.isNumeric(formData.price.toString())){
-            editarEspecialidad(formData);
-            history.push('/especialidades');
-        }else{
-            setFormError(true);
+        // console.log(formData);
+        if(validator.isNumeric(`${formData.peso}`) && validator.isNumeric(`${formData.talla}`) && validator.isNumeric(`${formData.phone}`)){
+            if(formData.password === formData.confirmPassword){
+                setFormError(null);
+                editarPaciente(formData);
+                history.push('/pacientes');
+            } else {
+                setFormError("Las contraseñas no coinciden");
+            }
+        } else {
+            setFormError("Error al registrar un paciente, asegurese de ingresar los datos correspondientes");
         }
     }
 
-    if(loading) {
-        return (<Loading/>)
+    if (loading) {
+        return (<Loading />)
     } else {
         return (
             <>
@@ -190,14 +211,14 @@ const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_
                             </li>
                         </ul>
                     </nav>
-    
+
                     <div id="layoutSidenav">
                         <div id="layoutSidenav_nav">
                             <SidenavMenu></SidenavMenu>
                         </div>
-    
+
                         <div id="layoutSidenav_content">
-    
+
                             <main>
                                 <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
                                     <div class="container">
@@ -206,9 +227,9 @@ const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_
                                                 <div class="col-auto mt-4">
                                                     <h1 class="page-header-title">
                                                         <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layout"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
-                                                Especialidades
+                                                Pacientes
                                             </h1>
-                                                    <div class="page-header-subtitle">Mantenimiento de especialidades</div>
+                                                    <div class="page-header-subtitle">Mantenimiento de pacientes</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -216,28 +237,38 @@ const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_
                                 </header>
                                 <div class="container mt-n10">
                                     <div class="card mb-4">
-                                        <div class="card-header">Editar una especialidad</div>
+                                        <div class="card-header">Editar el paciente</div>
                                         <div class="card-body">
-                                            <form onSubmit={onSubmit}>
-                                                <div class="form-group">
-                                                    <label for="name">Nombre*</label>
-                                                    <input class="form-control" id="name" type="text" placeholder="Nombre de la especialidad" onChange={onChange} name="name" defaultValue={formData.name} required/>
-                                                    <label for="price">Precio*</label>
-                                                    <input class="form-control" id="price" type="text" placeholder="Precio de la especialidad" onChange={onChange} name="price" required maxLength="6" minLength="2" defaultValue={formData.price} />                                            
-                                                </div>
-                                                <button className="btn btn-primary">Guardar</button>
-                                                <Link to='/especialidades'><button className="btn btn-default">Cancelar</button></Link>
-                                                {
-                                                formError ? (<div class="alert alert-dark" role="alert"> Hubo un error al registrar la especialidad</div>) : (<></>)
+                                            <div class="form-group">
+                                                <form onSubmit={onSubmit}>
+                                                    <label for="name">Nombres*</label><input class="form-control" id="name" type="text" placeholder="Nombres del paciente" onChange={onChange} name="name" required defaultValue={formData.name} />
+                                                    <label for="last_name">Apellidos*</label><input class="form-control" id="last_name" type="text" placeholder="Apellidos del paciente" onChange={onChange} name="last_name" required defaultValue={formData.last_name} />
+                                                    <label for="email">Email*</label><input class="form-control" id="email" type="email" placeholder="Email del paciente" onChange={onChange} name="email" required defaultValue={formData.email} />
+                                                    <label for="phone">Teléfono*</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del paciente" onChange={onChange} name="phone" required maxLength="10" minLength="8" defaultValue={formData.phone} />
+                                                    <label for="address">Dirección*</label><input class="form-control" id="address" type="text" placeholder="Dirección del paciente" onChange={onChange} name="address" required defaultValue={formData.address} />
+                                                    <label for="talla">Talla*</label><input class="form-control" id="talla" type="text" placeholder="Talla del paciente" onChange={onChange} name="talla" required maxLength="4" minLength="1" defaultValue={formData.talla} />
+                                                    <label for="peso">Peso*</label><input class="form-control" id="peso" type="text" placeholder="Peso del paciente" onChange={onChange} name="peso" required maxLength="3" minLength="1" defaultValue={formData.peso} />
+                                                    <label for="surgical_history">Historial Quirugico</label><textarea class="form-control" id="surgical_history" placeholder="Historial quirurgico del paciente" onChange={onChange} name="surgical_history" defaultValue={formData.surgical_history} />
+                                                    <label for="allergies_medicines">Alergias a Medicinas</label><textarea class="form-control" id="allergies_medicines" placeholder="Alergias del paciente" onChange={onChange} name="allergies_medicines" defaultValue={formData.allergies_medicines} />
+                                                    <label for="password">Contraseña</label><input class="form-control" type="password" id="password" placeholder="Nuevo contraseña del paciente" onChange={onChange} name="password" defaultValue={formData.password} />
+                                                    <label for="confirmPassword">Confirmar Contraseña</label><input class="form-control" type="password" id="confirmPassword" placeholder="Confirmar la nueva contraseña del paciente" onChange={onChange} name="confirmPassword" defaultValue={formData.confirmPassword} />
+                                                    <button className="btn btn-primary">Guardar</button>
+                                                    <Link to='/pacientes'><button className="btn btn-default">Cancelar</button></Link>
+                                                </form>
+                                            </div>
+
+                                            {
+                                                formError ? (<div class="alert alert-dark" role="alert">
+                                                    {formError}
+                                                </div>) : (<></>)
                                             }
-                                            </form>
-                                        </div> 
+                                        </div>
                                     </div>
                                 </div>
                             </main>
-    
+
                         </div>
-    
+
                     </div>
                 </div>
             </>
@@ -246,13 +277,13 @@ const ADetailSpeciality = ({mostrarEspecialidad, editarEspecialidad, speciality_
 }
 
 const mapStateToProps = state => ({
-    speciality_details: state.specialities.speciality_details,
-    loading: state.specialities.loading
+    patient_details: state.patients.patient_details,
+    edited: state.patients.edited
 });
 const mapDispatchToProps = {
-    mostrarEspecialidad,
-    userLogout,
-    editarEspecialidad
+    mostrarPaciente,
+    editarPaciente,
+    userLogout
 }
 
-export default connect (mapStateToProps, mapDispatchToProps)(ADetailSpeciality);
+export default connect(mapStateToProps, mapDispatchToProps)(ADetailsPatient);

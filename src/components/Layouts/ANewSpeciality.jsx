@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { agregarDoctor } from '../../redux/actions/doctorsActions';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
-import adminPng from '../../images/admin.png'
 import store from 'store'
 import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
@@ -184,10 +183,10 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad, error }) => 
                             </div>
                         </li>
                         <li className="nav-item dropdown no-caret mr-2 dropdown-user">
-                            <a className="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img className="img-fluid" src={adminPng} /></a>
+                            <a className="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img className="img-fluid" src={localStorage.getItem('AVATAR')} /></a>
                             <div className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
                                 <h6 className="dropdown-header d-flex align-items-center">
-                                    <img className="dropdown-user-img" src={adminPng} />
+                                    <img className="dropdown-user-img" src={localStorage.getItem('AVATAR')} />
                                     <div className="dropdown-user-details">
                                         <div className="dropdown-user-details-name"> Admin </div>
                                         <div className="dropdown-user-details-email"> {user.email} </div>

@@ -4,12 +4,13 @@ import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
 import store from 'store';
 import SidenavMenu from '../Layouts/SidenavMenu';
+import PSidenavMenu from '../Layouts/PSidenavMenu';
 import adminPng from '../../images/admin.png';
 import { userLogout } from '../../redux/actions/user/loginActions';
+import axios from 'axios'
 
 const Perfil = ({ history, userLogout }) => {
 
-    const [optionSidenav, setOptionSidenav] = useState(1);
     const [user, setUser] = useState({
         id: null,
         email: null
@@ -23,6 +24,13 @@ const Perfil = ({ history, userLogout }) => {
         talla: null,
         peso: null
     });
+    const [formDataAdmin, setFormDataAdmin] = useState({
+        email: "",
+        password: ""
+    });
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [editInfo, setEditInfo] = useState(false);
+    const [chooseFile, setChooseFile] = useState(false);
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
@@ -30,8 +38,6 @@ const Perfil = ({ history, userLogout }) => {
         if (localStorage.getItem('PATIENT')) {
             const patient = JSON.parse(localStorage.getItem('PATIENT'));
             setPatient(patient);
-            console.log("### HOOK PATIENT ###");
-            console.log(patient);
         }
     }, []);
 
@@ -50,16 +56,50 @@ const Perfil = ({ history, userLogout }) => {
         history.push('/login');
     }
 
+    const onChangeAdmin = e => {
+        setFormDataAdmin({ ...formDataAdmin, [e.target.name]: e.target.value });
+    }
+
+    const onSubmitAdmin = e => {
+        e.preventDefault();
+        // Modify admin information
+    }
+
+    const onFileChange = event => {
+        // Update the state 
+        setSelectedFile(event.target.files[0]);
+    };
+
+    const onFileUpload = async () => {
+        const formData = new FormData();
+        formData.append("avatar", selectedFile, selectedFile.name);
+        console.log(selectedFile);
+
+        const token = localStorage.getItem('TOKEN');
+        const responseUpload = await axios.post('http://74.207.230.214/api/v1/image', formData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        console.log(responseUpload.data);
+        setSelectedFile(null);
+    }
+
+    const thisFileUpload = () => {
+        document.getElementById("avatar").click();
+        setChooseFile(true);
+    }
+
     if (patient.name) {
         return (
             <>
                 <div className="nav-fixed">
                     <nav className="topnav navbar navbar-expand shadow navbar-light bg-white" id="sidenavAccordion">
-                        <Link className="navbar-brand active" to='/tablero'>Qurasalud</Link>
+                        <Link className="navbar-brand active" to='/perfil'>Qurasalud</Link>
                         <button className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
                         <form className="form-inline mr-auto d-none d-md-block">
                             <div className="input-group input-group-joined input-group-solid">
-                                <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
+                                <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Buscar ..." />
                                 <div className="input-group-append">
                                     <div className="input-group-text"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
                                 </div>
@@ -175,13 +215,94 @@ const Perfil = ({ history, userLogout }) => {
                     <div id="layoutSidenav">
                         <div id="layoutSidenav_nav">
 
-                            <SidenavMenu />
+                            <PSidenavMenu />
 
                         </div>
 
                         <div id="layoutSidenav_content">
 
+                            <main>
+                                <header className="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                                    <div className="container-fluid">
+                                        <div className="page-header-content">
+                                            <div className="row align-items-center justify-content-between pt-3">
+                                                <div className="col-auto mb-3">
+                                                    <h1 className="page-header-title">
+                                                        <div className="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" stroke-linecap="round" strokeLinejoin="round" className="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                                                Cuenta - Perfil
+                                            </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </header>
+                                <div className="container mt-4">
+                                    <nav className="nav nav-borders">
+                                        <Link className="nav-link ml-0" to='/perfil'>Perfil</Link>
+                                        <Link className="nav-link" to='/antecedentes_medicos'>Antecendentes Médicos</Link>
+                                    </nav>
+                                    <hr className="mt-0 mb-4" />
+                                    <div className="row">
+                                        <div className="col-xl-4">
+                                            <div className="card">
+                                                <div className="card-header">Foto de perfil</div>
+                                                <div className="card-body text-center">
+                                                    <img className="img-account-profile rounded-circle mb-2" src="https://source.unsplash.com/QAB-WJcbgJk/300x300" alt="" />
+                                                    <div className="small font-italic text-muted mb-4">JPG o PNG no mayor a 5 MB</div>
+                                                    <input type="file" id="avatar" style={{ display: 'none' }} />
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="col-xl-8">
+                                            <div className="card mb-4">
+                                                <div className="card-header">Detalles de la cuenta</div>
+                                                <div className="card-body">
+                                                    <form>
+                                                        <div className="form-row">
+                                                            <div className="form-group col-md-6">
+                                                                <label className="small mb-1" htmlFor="firstname">Nombres</label>
+                                                                <input className="form-control" id="firstname" name="firstname" type="text" placeholder="Ingrese sus nombres" value={patient.name} required />
+                                                            </div>
+                                                            <div className="form-group col-md-6">
+                                                                <label className="small mb-1" htmlFor="lastname">Apellidos</label>
+                                                                <input className="form-control" id="lastname" name="lastname" type="text" placeholder="Ingrese sus apellidos" value={patient.last_name} required />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <label className="small mb-1" htmlFor="email">Correo electrónico</label>
+                                                            <input className="form-control" id="email" name="email" type="email" placeholder="Ingrese su correo electrónico" value={user.email} required />
+                                                        </div>
+                                                        <div className="form-row">
+                                                            <div className="form-group col-md-6">
+                                                                <label className="small mb-1" htmlFor="size">Talla</label>
+                                                                <input className="form-control" id="size" name="size" type="text" placeholder="Ingrese su talla" value={patient.talla} required />
+                                                            </div>
+                                                            <div className="form-group col-md-6">
+                                                                <label className="small mb-1" htmlFor="weight">Peso</label>
+                                                                <input className="form-control" id="weight" name="weight" type="text" placeholder="Ingrese su peso" value={patient.peso} required />
+                                                            </div>
+                                                        </div>
 
+                                                        <div className="form-row">
+                                                            <div className="form-group col-md-4">
+                                                                <label className="small mb-1" htmlFor="telephone">Telefono</label>
+                                                                <input className="form-control" id="telephone" name="telephone" type="tel" placeholder="Ingrese su telefono" value={patient.phone} required />
+                                                            </div>
+                                                            <div className="form-group col-md-8">
+                                                                <label className="small mb-1" htmlFor="address">Dirección</label>
+                                                                <input className="form-control" id="address" name="address" type="text" name="address" placeholder="Ingrese su dirección" value={patient.address} required />
+                                                            </div>
+                                                        </div>
+
+                                                        <button className="btn btn-primary" type="button">Guardar cambios</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
 
                         </div>
                     </div>
@@ -343,7 +464,14 @@ const Perfil = ({ history, userLogout }) => {
                                                 <div className="card-body text-center">
                                                     <img className="img-account-profile rounded-circle mb-2" src={adminPng} alt="" />
                                                     <div className="small font-italic text-muted mb-4">JPG o PNG no mayor a 5 MB</div>
-                                                    <input type="file" id="avatar" style={{ display: 'none' }} />
+                                                    {
+                                                        selectedFile ? <div class="alert alert-blue" role="alert"> {selectedFile.name} </div> : <></>
+                                                    }
+                                                    <input type="file" id="avatar" style={{ display: "none" }} onChange={onFileChange} />
+                                                    {
+                                                        chooseFile ? <> <div className="btn-group"><button class="btn btn-primary" type="button" onClick={() => { onFileUpload() }}>Guardar</button><button class="btn btn-light" type="button" onClick={() => { setChooseFile(false); setSelectedFile(null) }}>Cancelar</button></div> </> : <button class="btn btn-primary" type="button" onClick={() => { thisFileUpload() }}>Escoger imagen</button>
+                                                    }
+
                                                 </div>
                                             </div>
                                         </div>
@@ -351,14 +479,25 @@ const Perfil = ({ history, userLogout }) => {
                                             <div className="card mb-4">
                                                 <div className="card-header">Detalles de la cuenta</div>
                                                 <div className="card-body">
-                                                    <form>
-                                                        <div className="form-group">
-                                                            <label className="small mb-1" htmlFor="email">Correo electrónico</label>
-                                                            <input className="form-control" id="email" name="email" type="email" placeholder="Ingrese su correo electrónico" value={user.email} required />
-                                                        </div>
-
-                                                        <button className="btn btn-primary" type="button">Guardar cambios</button>
-                                                    </form>
+                                                    {
+                                                        editInfo ? <form onSubmit={onSubmitAdmin}>
+                                                            <div className="form-group">
+                                                                <label className="small mb-1" htmlFor="email">Correo electrónico</label>
+                                                                <input type="email" className="form-control" id="email" name="email" placeholder="Correo electrónico del adminitrador" onChange={onChangeAdmin} required />
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label className="small mb-1" htmlFor="password">Nueva Contraseña</label>
+                                                                <input type="password" className="form-control" id="password" name="password" placeholder="Nueva contraseña del administrador" onChange={onChangeAdmin} required />
+                                                            </div>
+                                                            <div className="btn-group"><button className="btn btn-primary" type="submit">Guardar</button><button className="btn btn-light" type="button" onClick={() => { setEditInfo(false) }}>Cancelar</button></div>
+                                                        </form> : <form>
+                                                                <div className="form-group">
+                                                                    <label className="small mb-1" htmlFor="email">Correo electrónico</label>
+                                                                    <input className="form-control" id="email" name="email" type="email" defaultValue={user.email} disabled />
+                                                                </div>
+                                                                <button className="btn btn-primary" type="button" onClick={() => { setEditInfo(true) }}>Editar</button>
+                                                            </form>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>

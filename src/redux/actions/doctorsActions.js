@@ -21,7 +21,7 @@ export const mostrarDoctores = () => async dispatch => {
                 type: MOSTRAR_DOCTORES,
                 payload: response.data
             });
-        }, 3000);
+        }, 1000);
 
     } catch (e) {
 

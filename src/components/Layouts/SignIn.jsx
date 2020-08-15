@@ -26,8 +26,11 @@ const SignIn = ({ history, userLogin, loading_signin, user, error_signin, setIsR
 
         if (user.paciente) {
             localStorage.setItem('PATIENT', JSON.stringify(user.paciente[0]));
+            history.push('/profile');
+
+        } else {
+            history.push('/perfil');
         }
-        history.push('/perfil');
         
     }
 
