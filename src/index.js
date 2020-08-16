@@ -5,6 +5,8 @@ import * as serviceWorker from './serviceWorker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/styles.css';
 import './css/custom.scss';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
 /* JS's files */
 import $ from 'jquery';
 import popper from 'popper.js';

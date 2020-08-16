@@ -106,6 +106,10 @@ export const downladAvatar = () => async dispatch => {
         if(response.data.codRes === "00") {
             localStorage.setItem('AVATAR', response.data.ruta);
 
+            dispatch({
+                type: UPDATE_AVATAR
+            });
+
         }else{
             console.log(response.data);
         }

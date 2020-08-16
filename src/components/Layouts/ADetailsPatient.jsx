@@ -72,6 +72,7 @@ const ADetailsPatient = ({ loading, userLogout, match, history, patient_details,
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
+        localStorage.removeItem('AVATAR');
         history.push('/login');
     }
 

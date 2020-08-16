@@ -27,6 +27,7 @@ const ADoctors = ({ history }) => {
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
+        localStorage.removeItem('AVATAR');
         history.push('/login');
     }
 

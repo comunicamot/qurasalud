@@ -1,4 +1,4 @@
-import { AGREGAR_DOCTOR, MOSTRAR_DOCTORES, MOSTRAR_DOCTOR, EDITAR_DOCTOR, ELIMINAR_DOCTOR, LOADING, ERROR } from './types';
+import { AGREGAR_DOCTOR, MOSTRAR_DOCTORES, MOSTRAR_DOCTOR, EDITAR_DOCTOR, ELIMINAR_DOCTOR, LOADING, ERROR} from './types';
 import axios from 'axios'
 
 export const mostrarDoctores = () => async dispatch => {

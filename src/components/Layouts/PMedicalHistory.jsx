@@ -35,9 +35,7 @@ const PMedicalHistory = ({ history, userLogout }) => {
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
-        if (localStorage.getItem('PATIENT')) {
-            localStorage.removeItem('PATIENT');
-        }
+        localStorage.removeItem('AVATAR');
         history.push('/login');
     }
     return (

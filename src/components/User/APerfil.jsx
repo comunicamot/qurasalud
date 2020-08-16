@@ -40,10 +40,13 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
         downladAvatar();
+        
     }, []);
 
     useEffect(() => {
-        downladAvatar();
+        if(update_avatar){
+            downladAvatar();
+        }
 
     }, [update_avatar]);
 
@@ -66,9 +69,7 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
-        if (localStorage.getItem('PATIENT')) {
-            localStorage.removeItem('PATIENT');
-        }
+        localStorage.removeItem('AVATAR');
         history.push('/login');
     }
 

@@ -38,6 +38,7 @@ const ANewSpeciality = ({ history, userLogout, agregarEspecialidad, error }) => 
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
+        localStorage.removeItem('AVATAR');
         history.push('/login');
     }
 

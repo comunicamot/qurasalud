@@ -115,3 +115,63 @@ export const eliminarTurno = turnId => async dispatch => {
 
     }
 }
+
+export const mostrarTurno = turnId => async dispatch => {
+    try {
+        
+        const token = localStorage.getItem('TOKEN');
+        const response = await axios.get(`http://74.207.230.214/api/v1/turns/${turnId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        console.log(response.data);
+
+        dispatch({
+            type: MOSTRAR_TURNO,
+            payload: response.data
+        });
+
+    } catch (e) {
+        console.log(e);
+
+        dispatch({
+            type: ERROR_TURNOS
+        });
+
+    }
+}
+
+export const editarTurno = turnModel => async dispatch => {
+    try {
+        
+        const {id} = turnModel;
+        const token = localStorage.getItem('TOKEN');
+        const response = await axios.put(`http://74.207.230.214/api/v1/turns/${id}`, turnModel, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        console.log(response.data);
+
+        if(response.data.codRes === "00") {
+            dispatch({
+                type: EDITAR_TURNO,
+                payload: turnModel
+            });
+
+        } else {
+            dispatch({
+                type: ERROR_TURNOS
+            });
+        }
+
+    } catch (e) {
+        console.log(e);
+
+        dispatch({
+            type: ERROR_TURNOS
+        });
+
+    }
+}

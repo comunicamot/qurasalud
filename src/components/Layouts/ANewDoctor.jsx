@@ -47,6 +47,7 @@ const ANewDoctor = ({ agregarDoctor, history, specialities, mostrarEspeSelect, u
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
+        localStorage.removeItem('AVATAR');
         history.push('/login');
     }
 

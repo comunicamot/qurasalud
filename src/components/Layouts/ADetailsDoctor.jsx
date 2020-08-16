@@ -58,6 +58,7 @@ const ADetailsDoctor = ({ mostrarEspecialidades, history, userLogout, specialiti
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
+        localStorage.removeItem('AVATAR');
         history.push('/login');
     }
 

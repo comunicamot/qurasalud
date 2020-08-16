@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { mostrarTurnos, agregarTurno, eliminarTurno } from '../../redux/actions/turnsActions';
+import { mostrarTurnos, agregarTurno, eliminarTurno, mostrarTurno, editarTurno } from '../../redux/actions/turnsActions';
+import { agregarDoctorTurn } from '../../redux/actions/doctorTurnActions';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
 import store from 'store'
@@ -8,22 +9,28 @@ import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
 import Select from 'react-select';
 import Loading from '../Layouts/Loading';
-import validator from 'validator';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import { DateRangePicker } from 'react-date-range';
 
 const mapStateToProps = state => ({
     turns: state.turns.turns,
     loading: state.turns.loading,
     error: state.turns.error,
     turn_added: state.turns.added,
-    turn_deleted: state.turns.deleted
+    turn_deleted: state.turns.deleted,
+    turn_details: state.turns.turn_details
 });
 const mapDispatchToProps = {
     mostrarTurnos,
     agregarTurno,
-    eliminarTurno
+    eliminarTurno,
+    mostrarTurno,
+    editarTurno,
+    agregarDoctorTurn
 }
 
-const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agregarTurno, turn_added, turn_deleted, eliminarTurno }) => {
+const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agregarTurno, turn_added, turn_deleted, eliminarTurno, turn_details, mostrarTurno, editarTurno, agregarDoctorTurn }) => {
 
     const [user, setUser] = useState({
         id: "",
@@ -31,7 +38,7 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
     });
     const [formError, setFormError] = useState(false);
     const [formData, setFormData] = useState({
-        name: "",
+        id: "",
         start_time: "",
         final_hour: ""
     });
@@ -62,13 +69,65 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
         userLogout();
         localStorage.removeItem('TOKEN');
         localStorage.removeItem('USER');
+        localStorage.removeItem('AVATAR');
         history.push('/login');
+    }
+
+    const editTurn = (id) => {
+        setEditing(true);
+        mostrarTurno(id);
+    }
+
+    const cancelEditTurn = () => {
+        setEditing(false);
+        clearFields();
+    }
+
+    const clearFields = () => {
+        formData.id = "";
+        formData.start_time = "";
+        formData.final_hour = "";
+        turn_details.id = "";
+        turn_details.start_time = "";
+        turn_details.final_hour = "";
     }
 
     const onSubmit = e => {
         e.preventDefault();
-        console.log(formData);
+        // console.log(formData);
         agregarTurno(formData);
+    }
+
+    const selectionRange = {
+        startDate: new Date(),
+        endDate: new Date(),
+        key: 'selection',
+    }
+
+    const onSubedit = e => {
+        e.preventDefault();
+        formData.id = turn_details.id;
+        if (formData.start_time.length <= 0) {
+            formData.start_time = turn_details.start_time;
+        }
+        if (formData.final_hour.length <= 0) {
+            formData.final_hour = turn_details.final_hour;
+        }
+        // console.log(formData);
+        editarTurno(formData);
+    }
+
+    const handleSelect = (ranges) => {
+        // console.log(ranges.selection.startDate);
+        // console.log(ranges.selection.endDate);
+        var dateStart = new Date(ranges.selection.startDate);
+        var dateEnd = new Date(ranges.selection.endDate);
+        dateStart = new Date(dateStart.getTime() + (dateStart.getTimezoneOffset()*60*1000));
+        let dateStartFormatted = dateStart.toISOString().split('T')[0]
+        dateEnd = new Date(dateEnd.getTime() + (dateEnd.getTimezoneOffset()*60*1000));
+        let dateEndFormatted = dateEnd.toISOString().split('T')[0]
+        
+
     }
 
     const handleDeleteTurn = id => {
@@ -224,93 +283,145 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
                                 </header>
                                 <div class="container mt-n10">
                                     <div class="card mb-4">
-                                        <div class="card-header">Agregar horarios</div>
+                                        <div class="card-header"> {editing ? <>Editar horario</> : <>Agregar horarios</>} </div>
                                         <div class="card-body">
-                                            {
-                                                editing ? <form onSubmit={onSubmit}>
-                                                    <div class="form-group">
-                                                        <lable>Dia</lable>
-                                                        <input className="form-control" type="text" id="name" name="name" onChange={onChange} required />
-                                                        <lable>Hora de inicio</lable>
-                                                        <input className="form-control" type="time" id="start_time" name="start_time" onChange={onChange} required />
-                                                        <lable>Hora de fin</lable>
-                                                        <input className="form-control" type="time" id="final_hour" name="final_hour" onChange={onChange} required />
-                                                    </div>
-
+                                            <div className="row">
+                                                <div className="col-md-4">
                                                     {
-                                                        formError ? (<div class="alert alert-dark" role="alert">
-                                                            {formError}
-                                                        </div>) : (<></>)
-                                                    }
+                                                        editing ? <div>
+                                                            <form onSubmit={onSubedit}>
+                                                                <div class="form-group">
+                                                                    <lable>Hora de inicio</lable>
+                                                                    <input className="form-control" type="time" id="start_time" name="start_time" onChange={onChange} required defaultValue={turn_details.start_time} />
+                                                                    <lable>Hora de fin</lable>
+                                                                    <input className="form-control" type="time" id="final_hour" name="final_hour" onChange={onChange} required defaultValue={turn_details.final_hour} />
+                                                                </div>
 
-                                                    <div className="btn-group">
-                                                        <button className="btn btn-primary">Guardar</button>
-                                                    </div>
-                                                </form> : <form onSubmit={onSubmit}>
-                                                        <div class="form-group">
-                                                            <lable>Dia</lable>
-                                                            <input className="form-control" type="text" id="name" name="name" onChange={onChange} required />
-                                                            <lable>Hora de inicio</lable>
-                                                            <input className="form-control" type="time" id="start_time" name="start_time" onChange={onChange} required />
-                                                            <lable>Hora de fin</lable>
-                                                            <input className="form-control" type="time" id="final_hour" name="final_hour" onChange={onChange} required />
-                                                        </div>
-
-                                                        {
-                                                            formError ? (<div class="alert alert-dark" role="alert">
-                                                                {formError}
-                                                            </div>) : (<></>)
-                                                        }
-
-                                                        <div className="btn-group">
-                                                            <button className="btn btn-primary">Guardar</button>
-                                                        </div>
-                                                    </form>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="card mb-4">
-                                        <div class="card-header">Horarios definidos</div>
-                                        <div class="card-body">
-
-                                            <>
-                                                <div class="row">
-                                                    <div class="col-sm-12">
-                                                        <table class="table table-bordered table-hover dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style={{ width: "100%" }}>
-                                                            <thead>
-                                                                <tr role="row">
-                                                                    <th class="sorting_asc" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" >Día</th>
-                                                                    <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" >Hora inicio</th>
-                                                                    <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1">Hora fin</th>
-                                                                    <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="2" colspan="2" >Opciones</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
                                                                 {
-                                                                    turns.map((turn, i) => <tr role="row" class="even">
-                                                                        <td class="sorting_1" key={i}> {turn.name} </td>
-                                                                        <td> {turn.start_time} </td>
-                                                                        <td> {turn.final_hour} </td>
-                                                                        <td>
-                                                                            <Link onClick={() => { setEditing(true) }} >Ver detalles</Link>
-                                                                        </td>
-                                                                        <td>
-                                                                            <button class="btn btn-datatable btn-icon btn-transparent-dark" onClick={() => { handleDeleteTurn(turn.id) }} ><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
-                                                                        </td>
-                                                                    </tr>)
+                                                                    formError ? (<div class="alert alert-dark" role="alert">
+                                                                        {formError}
+                                                                    </div>) : (<></>)
                                                                 }
 
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div className="col-sm-12">
-                                                        {/* <Link className="btn btn-primary" to='/nuevo_medico'>Agregar medico</Link> */}
-                                                    </div>
-                                                </div>
-                                            </>
+                                                                <div className="btn-group">
+                                                                    <button className="btn btn-primary">Guardar</button>
+                                                                    <button className="btn btn-light" onClick={() => { cancelEditTurn() }}>Cancelar</button>
+                                                                </div>
+                                                            </form>
+                                                        </div> : <form onSubmit={onSubmit}>
+                                                                <div class="form-group">
+                                                                    <lable>Hora de inicio</lable>
+                                                                    <input className="form-control" type="time" id="start_time" name="start_time" onChange={onChange} required />
+                                                                    <lable>Hora de fin</lable>
+                                                                    <input className="form-control" type="time" id="final_hour" name="final_hour" onChange={onChange} required />
+                                                                </div>
 
+                                                                {
+                                                                    formError ? (<div class="alert alert-dark" role="alert">
+                                                                        {formError}
+                                                                    </div>) : (<></>)
+                                                                }
+
+                                                                <div className="btn-group">
+                                                                    <button className="btn btn-primary">Guardar</button>
+                                                                </div>
+                                                            </form>
+                                                    }
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <table class="table table-responsive">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Hora inicio</th>
+                                                                <th scope="col">Hora fin</th>
+                                                                <th scope="col" colspan="2" >Opciones</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {
+                                                                turns.map((turn, i) => <tr>
+                                                                    <th> {turn.start_time} </th>
+                                                                    <th> {turn.final_hour} </th>
+                                                                    <th>
+                                                                        <Link onClick={() => { editTurn(turn.id) }} >Ver detalles</Link>
+                                                                    </th>
+                                                                    <th>
+                                                                        <button class="btn btn-datatable btn-icon btn-transparent-dark" onClick={() => { handleDeleteTurn(turn.id) }} ><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                                                                    </th>
+                                                                </tr>)
+                                                            }
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div className="card mb-4">
+                                        <div className="card-header">Asiganación de Horarios a los Médicos</div>
+                                        <div className="card-body">
+                                            <form>
+                                                <div className="form-row">
+                                                    <div className="col-md-12">
+                                                        <DateRangePicker
+                                                            ranges={[selectionRange]}
+                                                            onChange={handleSelect}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="form-row">
+                                                    <div className="col-md-3">
+                                                        <Select isMulti options={[{ label: "a", value: "a" }]}></Select>
+                                                    </div>
+                                                    <div className="col-md-3">
+                                                        <Select isMulti options={[{ label: "a", value: "a" }]}></Select>
+                                                    </div>
+                                                    <div className="col-md-3">
+                                                        <button className="btn btn-success btn-block">Asignar</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div className="card mb-4 card-waves">
+                                        <div className="card-header">Asignación de turnos a los médicos</div>
+                                        <div className="card-body">
+                                            <FullCalendar
+                                                eventSources={
+                                                    [
+
+                                                        // your event source
+                                                        {
+                                                            events: [ // put the array in the `events` property
+                                                                {
+                                                                    title: 'event1',
+                                                                    start: '2020-08-01'
+                                                                },
+                                                                {
+                                                                    title: 'event2',
+                                                                    start: '2020-08-05',
+                                                                    end: '2010-08-07'
+                                                                },
+                                                                {
+                                                                    title: 'event3',
+                                                                    start: '2020-08-09T12:30:00',
+                                                                }
+                                                            ],
+                                                            color: 'black',     // an option!
+                                                            textColor: 'yellow' // an option!
+                                                        }
+
+                                                        // any other event sources...
+
+                                                    ]
+                                                }
+                                                plugins={[dayGridPlugin]}
+                                                initialView="dayGridMonth"
+
+                                            />
+                                        </div>
+                                    </div>
+
                                 </div>
                             </main>
 
