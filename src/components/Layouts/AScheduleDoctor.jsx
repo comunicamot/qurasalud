@@ -43,6 +43,7 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
         final_hour: ""
     });
     const [editing, setEditing] = useState(false);
+    const [sidenavToggled, setSidenavToggled] = useState(false);
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
@@ -122,11 +123,11 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
         // console.log(ranges.selection.endDate);
         var dateStart = new Date(ranges.selection.startDate);
         var dateEnd = new Date(ranges.selection.endDate);
-        dateStart = new Date(dateStart.getTime() + (dateStart.getTimezoneOffset()*60*1000));
+        dateStart = new Date(dateStart.getTime() + (dateStart.getTimezoneOffset() * 60 * 1000));
         let dateStartFormatted = dateStart.toISOString().split('T')[0]
-        dateEnd = new Date(dateEnd.getTime() + (dateEnd.getTimezoneOffset()*60*1000));
+        dateEnd = new Date(dateEnd.getTime() + (dateEnd.getTimezoneOffset() * 60 * 1000));
         let dateEndFormatted = dateEnd.toISOString().split('T')[0]
-        
+
 
     }
 
@@ -137,15 +138,23 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
         }
     }
 
+    const handleSidenavToggle = () => {
+        if (sidenavToggled) {
+            setSidenavToggled(false);
+        } else {
+            setSidenavToggled(true);
+        }
+    }
+
     if (loading) {
         return <Loading />
     } else {
         return (
             <>
-                <div className="nav-fixed">
+                <div className={sidenavToggled ? "nav-fixed sidenav-toggled" : "nav-fixed"}>
                     <nav className="topnav navbar navbar-expand shadow navbar-light bg-white" id="sidenavAccordion">
                         <Link className="navbar-brand active" to='/perfil'>Qurasalud</Link>
-                        <button className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+                        <button onClick={() => { handleSidenavToggle() }} className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
                         <form className="form-inline mr-auto d-none d-md-block">
                             <div className="input-group input-group-joined input-group-solid">
                                 <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />

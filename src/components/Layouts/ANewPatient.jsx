@@ -9,7 +9,7 @@ import SidenavMenu from './SidenavMenu';
 import Select from 'react-select';
 import { agregarPaciente } from '../../redux/actions/patientsActions';
 import Loading from '../Layouts/Loading';
-import validator from 'validator'; 
+import validator from 'validator';
 
 const ANewPatient = ({ history, userLogout, agregarPaciente }) => {
 
@@ -31,6 +31,8 @@ const ANewPatient = ({ history, userLogout, agregarPaciente }) => {
         email: ""
     });
     const [formError, setFormError] = useState(null);
+    const [sidenavToggled, setSidenavToggled] = useState(false);
+    
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
@@ -49,28 +51,35 @@ const ANewPatient = ({ history, userLogout, agregarPaciente }) => {
     const onChange = e => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
-    
+
     const onSubmit = e => {
         e.preventDefault();
         // console.log(formData);
-        if(validator.isDecimal(formData.peso) 
-            && validator.isDecimal(formData.talla) 
+        if (validator.isDecimal(formData.peso)
+            && validator.isDecimal(formData.talla)
             && validator.isNumeric(formData.phone)
-            && formData.password === formData.confirmPassword){
+            && formData.password === formData.confirmPassword) {
             agregarPaciente(formData);
             history.push('/pacientes');
-        }else{
+        } else {
             setFormError("Error al registrar un paciente, asegurese de ingresar los datos correspondientes");
         }
-        
-    }
 
+    }
+    
+    const handleSidenavToggle = () => {
+        if (sidenavToggled) {
+            setSidenavToggled(false);
+        } else {
+            setSidenavToggled(true);
+        }
+    }
     return (
         <>
-            <div className="nav-fixed">
+            <div className={sidenavToggled ? "nav-fixed sidenav-toggled" : "nav-fixed"}>
                 <nav className="topnav navbar navbar-expand shadow navbar-light bg-white" id="sidenavAccordion">
                     <Link className="navbar-brand active" to='/perfil'>Qurasalud</Link>
-                    <button className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+                    <button onClick={() => { handleSidenavToggle() }} className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
                     <form className="form-inline mr-auto d-none d-md-block">
                         <div className="input-group input-group-joined input-group-solid">
                             <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
@@ -215,14 +224,14 @@ const ANewPatient = ({ history, userLogout, agregarPaciente }) => {
                                                 <label for="name">Nombres*</label><input class="form-control" id="name" type="text" placeholder="Nombres del paciente" onChange={onChange} name="name" required />
                                                 <label for="last_name">Apellidos*</label><input class="form-control" id="last_name" type="text" placeholder="Apellidos del paciente" onChange={onChange} name="last_name" required />
                                                 <label for="email">Email*</label><input class="form-control" id="email" type="email" placeholder="Email del paciente" onChange={onChange} name="email" required />
-                                                <label for="phone">Teléfono*</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del paciente" onChange={onChange} name="phone" required maxLength="10" minLength="8"/>
+                                                <label for="phone">Teléfono*</label><input class="form-control" id="phone" type="tel" placeholder="Telefono del paciente" onChange={onChange} name="phone" required maxLength="10" minLength="8" />
                                                 <label for="address">Dirección*</label><input class="form-control" id="address" type="text" placeholder="Dirección del paciente" onChange={onChange} name="address" required />
                                                 <label for="talla">Talla*</label><input class="form-control" id="talla" type="text" placeholder="Talla del paciente" onChange={onChange} name="talla" required maxLength="4" minLength="1" />
                                                 <label for="peso">Peso*</label><input class="form-control" id="peso" type="text" placeholder="Peso del paciente" onChange={onChange} name="peso" required maxLength="3" minLength="1" />
                                                 <label for="surgical_history">Historial Quirugico</label><textarea class="form-control" id="surgical_history" placeholder="Historial quirurgico del paciente" onChange={onChange} name="surgical_history" />
                                                 <label for="allergies_medicines">Alergias a Medicinas</label><textarea class="form-control" id="allergies_medicines" placeholder="Alergias del paciente" onChange={onChange} name="allergies_medicines" />
                                                 <label for="password">Contraseña</label><input class="form-control" type="password" id="password" placeholder="Contraseña del paciente" onChange={onChange} name="password" required />
-                                                <label for="confirmPassword">Confirmar contraseña</label><input class="form-control" type="password" id="confirmPassword" placeholder="Confirmar contraseña del paciente" onChange={onChange} name="confirmPassword" required/>
+                                                <label for="confirmPassword">Confirmar contraseña</label><input class="form-control" type="password" id="confirmPassword" placeholder="Confirmar contraseña del paciente" onChange={onChange} name="confirmPassword" required />
                                             </div>
 
                                             {
