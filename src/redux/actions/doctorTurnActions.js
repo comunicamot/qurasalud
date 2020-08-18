@@ -1,4 +1,4 @@
-import { AGREGAR_DOCTORTURN, MOSTRAR_DOCTORTURNS, LOADING_DOCTORTURN, ERROR_DOCTORTURN } from '../actions/types';
+import { AGREGAR_DOCTORTURN, MOSTRAR_DOCTORTURNS, ELIMINAR_DOCTORTURN, LOADING_DOCTORTURN, ERROR_DOCTORTURN } from '../actions/types';
 import axios from 'axios';
 
 export const agregarDoctorTurn = doctorTurnModel => async dispatch => {
@@ -57,6 +57,32 @@ export const mostrarDoctorTurns = () => async dispatch => {
             type: MOSTRAR_DOCTORTURNS,
             payload: response.data
         })
+
+    } catch (e) {
+        console.log(e);
+        dispatch({
+            type: ERROR_DOCTORTURN
+        });
+
+    }
+
+}
+
+export const eliminarDoctorTurn = id => async dispatch => {
+    try {
+
+        const token = localStorage.getItem('TOKEN');
+        const response = await axios.delete(`http://74.207.230.214/api/v1/doctor_turn/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        console.log(response.data);
+
+        dispatch({
+            type: ELIMINAR_DOCTORTURN
+        });
 
     } catch (e) {
         console.log(e);

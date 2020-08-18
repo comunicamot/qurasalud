@@ -80,11 +80,21 @@ const SidenavMenu = ({ history }) => {
                                     </Link>
                         </nav>
                     </div>
-                    <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collapsed3" aria-expanded="false" aria-controls="collapsePages">
+                    <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collapseCitas" aria-expanded="false" aria-controls="collapsePages">
                         <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
                                     Citas
                                     <div className="sidenav-collapse-arrow"></div>
                     </a>
+                    <div class="collapse show" id="collapseCitas" data-parent="#accordionSidenavPages" >
+                        <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                            <Link class="nav-link" to='/nueva_cita'>
+                                Agregar Cita
+                                    </Link>
+                            <Link class="nav-link" to='/citas'>
+                                Listar Cita
+                                    </Link>
+                        </nav>
+                    </div>
 
                     <a className="nav-link" href="javascript:void(0);" data-toggle="collapse" data-target="#collpased_specialities" aria-expanded="false" aria-controls="collapsePages">
                         <div className="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>

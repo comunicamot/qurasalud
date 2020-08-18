@@ -3,7 +3,8 @@ import { AGREGAR_DOCTORTURN, MOSTRAR_DOCTORTURNS, LOADING_DOCTORTURN, ERROR_DOCT
 const initialState = {
     loading: false,
     doctor_turns: [],
-    error: false
+    error: false,
+    added: false
 }
 
 export default function (state = initialState, action) {
@@ -11,12 +12,14 @@ export default function (state = initialState, action) {
         case AGREGAR_DOCTORTURN: return {
             loading: false,
             doctor_turns: [],
-            error: false
+            error: false,
+            added: true
         }
         case MOSTRAR_DOCTORTURNS: return {
             loading: false,
             doctor_turns: action.payload,
-            error: false
+            error: false,
+            added: false
         }
         case LOADING_DOCTORTURN: return {
             ...state,
@@ -25,7 +28,8 @@ export default function (state = initialState, action) {
         case ERROR_DOCTORTURN: return {
             loading: false,
             doctor_turns: [],
-            error: true
+            error: true,
+            added: false
         }
         default: 
             return state;
