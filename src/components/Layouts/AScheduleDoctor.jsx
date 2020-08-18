@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { mostrarTurnos, agregarTurno, eliminarTurno, mostrarTurno, editarTurno } from '../../redux/actions/turnsActions';
 import { agregarDoctorTurn } from '../../redux/actions/doctorTurnActions';
+import { mostrarDoctSelect } from '../../redux/actions/doctorsActions';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
 import store from 'store'
@@ -11,7 +12,11 @@ import Select from 'react-select';
 import Loading from '../Layouts/Loading';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import { DateRangePicker } from 'react-date-range';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { es } from 'date-fns/locale';
+import format from 'date-fns/format';
+import { DateRange } from 'react-date-range';
 
 const mapStateToProps = state => ({
     turns: state.turns.turns,
@@ -19,7 +24,8 @@ const mapStateToProps = state => ({
     error: state.turns.error,
     turn_added: state.turns.added,
     turn_deleted: state.turns.deleted,
-    turn_details: state.turns.turn_details
+    turn_details: state.turns.turn_details,
+    doctors: state.doctors.doctors
 });
 const mapDispatchToProps = {
     mostrarTurnos,
@@ -27,10 +33,11 @@ const mapDispatchToProps = {
     eliminarTurno,
     mostrarTurno,
     editarTurno,
-    agregarDoctorTurn
+    agregarDoctorTurn,
+    mostrarDoctSelect
 }
 
-const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agregarTurno, turn_added, turn_deleted, eliminarTurno, turn_details, mostrarTurno, editarTurno, agregarDoctorTurn }) => {
+const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agregarTurno, turn_added, turn_deleted, eliminarTurno, turn_details, mostrarTurno, editarTurno, agregarDoctorTurn, mostrarDoctSelect, doctors }) => {
 
     const [user, setUser] = useState({
         id: "",
@@ -45,17 +52,62 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
     const [editing, setEditing] = useState(false);
     const [sidenavToggled, setSidenavToggled] = useState(false);
 
+    /**
+     * Calendar DateRange
+     */
+    const [doctorTurnDate, setDoctorTurnDate] = useState([]);
+
+    /**
+     * Doctor Select
+     */
+    const [doctorSelected, setDoctorSelected] = useState([]);
+
+
+    /**
+     * Turn Select
+     */
+    const [turnSelected, setTurnSelected] = useState([]);
+
+    /**
+     * Full Calendar
+     */
+    const [events, setEvents] = useState([]);
+
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
         mostrarTurnos();
+        mostrarDoctSelect();
+
     }, []);
 
     useEffect(() => {
         if (turn_added || turn_deleted) {
             mostrarTurnos();
         }
+
     }, [turn_added, turn_deleted]);
+
+    useEffect(() => {
+
+        if (doctors) {
+            fillCalendar();
+        }
+
+    }, [doctors]);
+
+    const fillCalendar = () => {
+
+        let arrayTurns = [];
+
+        doctors.forEach(doc => {
+            doc.turns.forEach(turn => {
+                arrayTurns.push({ title: doc.doctor.last_name, start: `${turn.date}T${turn.start_time}`, end: `${turn.date}T${turn.final_hour}` });
+            });
+        });
+
+        setEvents(arrayTurns);
+    }
 
     const onChange = e => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -119,16 +171,17 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
     }
 
     const handleSelect = (ranges) => {
-        // console.log(ranges.selection.startDate);
-        // console.log(ranges.selection.endDate);
         var dateStart = new Date(ranges.selection.startDate);
         var dateEnd = new Date(ranges.selection.endDate);
-        dateStart = new Date(dateStart.getTime() + (dateStart.getTimezoneOffset() * 60 * 1000));
-        let dateStartFormatted = dateStart.toISOString().split('T')[0]
-        dateEnd = new Date(dateEnd.getTime() + (dateEnd.getTimezoneOffset() * 60 * 1000));
-        let dateEndFormatted = dateEnd.toISOString().split('T')[0]
+        let dateStartFormatted = format(dateStart, 'yyyy-MM-dd', { locale: es });
+        let dateEndFormatted = format(dateEnd, 'yyyy-MM-dd', { locale: es });
+        setDoctorTurnDate([dateStartFormatted, dateEndFormatted]);
+    }
 
-
+    const minDate = () => {
+        var d = new Date();
+        d.setDate(d.getDate());
+        return d;
     }
 
     const handleDeleteTurn = id => {
@@ -144,6 +197,61 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
         } else {
             setSidenavToggled(true);
         }
+    }
+
+    const selectDoctors = () => {
+        const list = []
+        doctors.forEach(d => {
+            list.push({ label: d.doctor.name, value: d.doctor.id });
+        });
+        return list;
+    }
+
+    const selectTurns = () => {
+        const list = []
+        turns.forEach(t => {
+            list.push({ label: `${t.start_time} - ${t.final_hour}`, value: t.id });
+        });
+        return list;
+    }
+
+    const handleDoctors = args => {
+        console.log(args);
+        if (args) {
+            setDoctorSelected({ ...doctorSelected, ['id']: args.value });
+        }
+    }
+
+    const handleTurns = args => {
+        console.log(args);
+        if (args) {
+            setTurnSelected({ ...turnSelected, ['id']: args.value });
+        }
+    }
+
+    const onSubmitAsignarHorarioMedico = e => {
+        e.preventDefault();
+        console.log(doctorTurnDate);
+        console.log(doctorSelected);
+        console.log(turnSelected);
+        try {
+            const doctorTurn = {
+                date: doctorTurnDate,
+                doctor_id: doctorSelected.id,
+                turn_id: turnSelected.id
+            }
+            agregarDoctorTurn(doctorTurn);
+        } catch (e) {
+            console.log("Debe de completar los campos obligatorios");
+        }
+    }
+
+    const handleDateSelect = (selectInfo) => {
+        console.log(selectInfo);
+    }
+
+    const handleEventClick = (clickInfo) => {
+        console.log(clickInfo.event);
     }
 
     if (loading) {
@@ -292,7 +400,7 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
                                 </header>
                                 <div class="container mt-n10">
                                     <div class="card mb-4">
-                                        <div class="card-header"> {editing ? <>Editar horario</> : <>Agregar horarios</>} </div>
+                                        <div class="card-header"> {editing ? <>Editar turnos</> : <>Agregar turnos</>} </div>
                                         <div class="card-body">
                                             <div className="row">
                                                 <div className="col-md-4">
@@ -354,9 +462,6 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
                                                                     <th>
                                                                         <Link onClick={() => { editTurn(turn.id) }} >Ver detalles</Link>
                                                                     </th>
-                                                                    <th>
-                                                                        <button class="btn btn-datatable btn-icon btn-transparent-dark" onClick={() => { handleDeleteTurn(turn.id) }} ><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
-                                                                    </th>
                                                                 </tr>)
                                                             }
 
@@ -369,64 +474,54 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
                                     <div className="card mb-4">
                                         <div className="card-header">Asiganación de Horarios a los Médicos</div>
                                         <div className="card-body">
-                                            <form>
+                                            <form onSubmit={onSubmitAsignarHorarioMedico}>
                                                 <div className="form-row">
-                                                    <div className="col-md-12">
-                                                        <DateRangePicker
+                                                    <div className="col-md-6">
+                                                        <DateRange
+                                                            locale={es}
                                                             ranges={[selectionRange]}
                                                             onChange={handleSelect}
+                                                            minDate={minDate()}
+
                                                         />
                                                     </div>
-                                                </div>
-                                                <div className="form-row">
-                                                    <div className="col-md-3">
-                                                        <Select isMulti options={[{ label: "a", value: "a" }]}></Select>
-                                                    </div>
-                                                    <div className="col-md-3">
-                                                        <Select isMulti options={[{ label: "a", value: "a" }]}></Select>
-                                                    </div>
-                                                    <div className="col-md-3">
-                                                        <button className="btn btn-success btn-block">Asignar</button>
+                                                    <div className="col-md-6">
+                                                        {
+                                                            doctorTurnDate ? <div className="form-group"> <label>Fecha de inicio</label><input type="date" className="form-control" defaultValue={doctorTurnDate[0]} disabled name="range1" /> <label>Fecha fin</label> <input type="date" className="form-control" defaultValue={doctorTurnDate[1]} disabled name="range2" /> </div> : <></>
+                                                        }
+                                                        <div className="form-group">
+                                                            <lable>Doctor</lable>
+                                                            <Select options={selectDoctors()} onChange={handleDoctors}></Select>
+                                                            <lable>Turno</lable>
+                                                            <Select options={selectTurns()} onChange={handleTurns}></Select>
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <div className="btn-group">
+                                                                <button type="submit" className="btn btn-success">Asignar</button>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                     <div className="card mb-4 card-waves">
-                                        <div className="card-header">Asignación de turnos a los médicos</div>
+                                        <div className="card-header">Horarios</div>
                                         <div className="card-body">
                                             <FullCalendar
-                                                eventSources={
-                                                    [
-
-                                                        // your event source
-                                                        {
-                                                            events: [ // put the array in the `events` property
-                                                                {
-                                                                    title: 'event1',
-                                                                    start: '2020-08-01'
-                                                                },
-                                                                {
-                                                                    title: 'event2',
-                                                                    start: '2020-08-05',
-                                                                    end: '2010-08-07'
-                                                                },
-                                                                {
-                                                                    title: 'event3',
-                                                                    start: '2020-08-09T12:30:00',
-                                                                }
-                                                            ],
-                                                            color: 'black',     // an option!
-                                                            textColor: 'yellow' // an option!
-                                                        }
-
-                                                        // any other event sources...
-
-                                                    ]
-                                                }
-                                                plugins={[dayGridPlugin]}
+                                                events={events}
+                                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                                 initialView="dayGridMonth"
-
+                                                headerToolbar={{
+                                                    left: 'prev,next today',
+                                                    center: 'title',
+                                                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                                                }}
+                                                selectable={true}
+                                                selectMirror={true}
+                                                select={handleDateSelect}
+                                                eventClick={handleEventClick}
                                             />
                                         </div>
                                     </div>

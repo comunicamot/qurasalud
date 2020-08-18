@@ -1,4 +1,4 @@
-import { AGREGAR_DOCTOR, MOSTRAR_DOCTORES, MOSTRAR_DOCTOR, EDITAR_DOCTOR, ELIMINAR_DOCTOR, LOADING, ERROR} from './types';
+import { AGREGAR_DOCTOR, MOSTRAR_DOCTORES, MOSTRAR_DOCTOR, EDITAR_DOCTOR, ELIMINAR_DOCTOR, LOADING, ERROR } from './types';
 import axios from 'axios'
 
 export const mostrarDoctores = () => async dispatch => {
@@ -31,6 +31,27 @@ export const mostrarDoctores = () => async dispatch => {
             type: ERROR
         });
 
+    }
+}
+
+export const mostrarDoctSelect = () => async dispatch => {
+    try {
+        const token = localStorage.getItem('TOKEN');
+        const response = await axios.get('http://74.207.230.214/api/v1/doctors', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        console.log(response.data);
+        dispatch({
+            type: MOSTRAR_DOCTORES,
+            payload: response.data
+        });
+    } catch (e) {
+        console.log(e);
+        dispatch({
+            type: ERROR
+        });
     }
 }
 
