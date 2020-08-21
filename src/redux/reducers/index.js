@@ -5,6 +5,7 @@ import specialitiesReducers from './specialitiesReducers';
 import patientsReducers from './patientsReducers';
 import turnsReducers from './turnsReducers';
 import doctorTurnReducers from './doctorTurnReducers';
+import citasReducers from './citasReducers';
 
 export default combineReducers({
     login: loginReducers,
@@ -12,5 +13,6 @@ export default combineReducers({
     specialities: specialitiesReducers,
     patients: patientsReducers,
     turns: turnsReducers,
-    doctor_turns: doctorTurnReducers
+    doctor_turns: doctorTurnReducers,
+    citas: citasReducers
 });

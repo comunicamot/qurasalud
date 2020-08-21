@@ -5,6 +5,8 @@ import store from 'store'
 import { connect } from 'react-redux';
 import { userLogout } from '../../redux/actions/user/loginActions';
 import SidenavMenu from './SidenavMenu';
+import { mostrarCitas } from '../../redux/actions/citasActions';
+import ATableMedicalAppoHist from './ATableMedicalAppoHist';
 
 const AMedicalAppoHist = ({history}) => {
 
@@ -188,7 +190,7 @@ const AMedicalAppoHist = ({history}) => {
                                         <div class="datatable">
                                             <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
 
-                                                
+                                                <ATableMedicalAppoHist />
 
                                             </div>
                                         </div>

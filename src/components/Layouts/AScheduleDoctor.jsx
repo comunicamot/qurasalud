@@ -80,7 +80,14 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
     /**
      * Schedule Details
      */
-    const [scheduleDetails, setScheduleDetails] = useState([]);
+    const [scheduleDetails, setScheduleDetails] = useState({
+        doctor_id: "",
+        doctor_email: "",
+        doctor_fullname: "",
+        specialties: "",
+        startFormat: "",
+        finalFormat: ""
+    });
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
@@ -94,7 +101,7 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
         if (turn_added || turn_deleted) {
             mostrarTurnos();
         }
-        
+
     }, [turn_added, turn_deleted]);
 
     useEffect(() => {
@@ -105,8 +112,8 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
 
     }, [doctors]);
 
-    useEffect(()=> {
-        if(doctor_turns_added) {
+    useEffect(() => {
+        if (doctor_turns_added) {
             mostrarDoctSelect();
         }
     }, [doctor_turns_added]);
@@ -248,7 +255,7 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
             end: format(dt, 'yyyy-MM-dd')
         }
         setNewEvent(values);
-        
+
         setDoctorTurnDate([selectInfo.startStr, format(dt, 'yyyy-MM-dd')]);
         $("#staticNewEvent").modal("show");
     }
@@ -267,9 +274,7 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
             finalFormat
         }
         setScheduleDetails(values);
-        if (scheduleDetails) {
-            $("#staticBackdropEvent").modal('show');
-        }
+        $("#staticBackdropEvent").modal('show');
     }
 
     if (loading) {
@@ -568,7 +573,7 @@ const AScheduleDoctor = ({ history, mostrarTurnos, loading, error, turns, agrega
                                                         <button type="submit" className="btn btn-success">Asignar</button>
                                                     </div>
                                                     <div className="btn-group">
-                                                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button><button class="btn btn-danger" type="button">Eliminar</button>
+                                                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button><button class="btn btn-danger" type="button">Eliminar</button>
                                                     </div>
                                                 </div>
                                             </div>

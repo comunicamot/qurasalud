@@ -14,6 +14,7 @@ import ANewPatient from './Layouts/ANewPatient';
 import ADetailsPatient from './Layouts/ADetailsPatient';
 import AScheduleDoctor from './Layouts/AScheduleDoctor';
 import AMedicalAppoHist from './Layouts/AMedicalAppoHist';
+import ANewMedicalAppoHist from './Layouts/ANewMedicalAppoHist';
 
 // import PMedicalHistory from './Layouts/PMedicalHistory';
 // import PPerfil from './User/PPerfil';
@@ -37,6 +38,7 @@ const App = () => {
                 <Route path="/paciente/detalles/:id" component={ADetailsPatient}></Route>
                 <Route path="/horario_medico" component={AScheduleDoctor}></Route>
                 <Route path="/citas" component={AMedicalAppoHist}></Route>
+                <Route path="/nueva_cita" component={ANewMedicalAppoHist}></Route>
 
                 {/* <Route path="/profile" component={PPerfil}></Route>
                 <Route path="/medical_history" component={PMedicalHistory}></Route> */}

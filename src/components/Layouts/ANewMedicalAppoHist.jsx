@@ -2,64 +2,124 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import isLoggedIn from '../../helpers/is_logged_in';
 import { Redirect, Link } from 'react-router-dom';
-import store from 'store';
-import SidenavMenu from '../Layouts/SidenavMenu';
-import { userLogout, adminUpdateInfo, downladAvatar, uploadAvatar } from '../../redux/actions/user/loginActions';
+import store from 'store'
+import { userLogout } from '../../redux/actions/user/loginActions';
+import SidenavMenu from './SidenavMenu';
+import Select from 'react-select';
 import Loading from '../Layouts/Loading';
-import validator from 'validator';
+import { agregarCita } from '../../redux/actions/citasActions';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { es } from 'date-fns/locale';
+import format from 'date-fns/format';
+import { DateRange } from 'react-date-range';
 import $ from 'jquery';
+import validator from 'validator';
+import { parseISO } from 'date-fns';
+import { mostrarDoctores } from '../../redux/actions/doctorsActions';
+import { mostrarPacientes } from '../../redux/actions/patientsActions';
 
 const mapStateToProps = state => ({
-    user: state.login.user,
-    update_avatar: state.login.update_avatar,
-    update_info: state.login.update_info
-});
+    doctors: state.doctors.doctors,
+    patients: state.patients.patients
+})
 
 const mapDispatchToProps = {
-    userLogout,
-    adminUpdateInfo,
-    downladAvatar,
-    uploadAvatar
+    agregarCita,
+    mostrarDoctores,
+    mostrarPacientes
 }
 
-const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAvatar, update_avatar, update_info }) => {
+const ANewMedicalAppoHist = ({ history, mostrarDoctores, doctors, mostrarPacientes, patients }) => {
 
     const [user, setUser] = useState({
         id: "",
         email: ""
     });
-    const [formDataAdmin, setFormDataAdmin] = useState({
-        email: "",
-        password: ""
-    });
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [editInfo, setEditInfo] = useState(false);
-    const [chooseFile, setChooseFile] = useState(false);
     const [sidenavToggled, setSidenavToggled] = useState(false);
+    /**
+    * Errors
+    */
+    const [formError, setFormError] = useState(null);
+    /**
+    * Speciality Select
+    */
+    const [specialitySelected, setSpecialitySelected] = useState({
+        specialty: ""
+    });
+    /**
+    * Patient Select
+    */
+    const [patientSelected, setPatientSelected] = useState({
+        patient_id: ""
+    });
+    /**
+     * Full Calendar
+     */
+    const [events, setEvents] = useState([]);
+    const [newEvent, setNewEvent] = useState([]);
+    /**
+     * Schedule Details
+     */
+    const [appointment, setAppointment] = useState({
+        doctor_id: "",
+        doctor_email: "",
+        doctor_fullname: "",
+        turn_id: "",
+        turn_status: "",
+        start_datetime: "",
+        final_datetime: "",
+        specialties: ""
+    });
+    /**
+     * FormData
+     */
+    const [formData, setFormData] = useState({
+        "reason_consultation": "",
+        "Additional_Information": "",
+        "amount": "",
+        "payment_type": "",
+        "patient_id": "",
+        "doctor_turn_id": "",
+        "specialty": ""
+    })
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('USER'));
         setUser(user);
-        downladAvatar();
-        
+        mostrarDoctores();
+        mostrarPacientes();
+
     }, []);
 
     useEffect(() => {
-        if(update_avatar){
-            downladAvatar();
+
+        if (doctors) {
+            fillCalendar();
         }
 
-    }, [update_avatar]);
+    }, [doctors]);
 
-    useEffect(() => {
-        if (update_info) {
-            $("#exampleModalCenter").modal({
-                backdrop: 'static',
-                keyboard: false
+    const fillCalendar = () => {
+
+        let arrayEvents = [];
+
+        doctors.forEach(doc => {
+            doc.turns.forEach(turn => {
+                let color = null;
+                if (turn.status === 0) {
+                    color = "#EC1515";
+                } else if (turn.status === 1) {
+                    color = "#D0E216";
+                }
+                arrayEvents.push({ doctor_id: doc.doctor.id, start_datetime: `${turn.date}T${turn.start_time}`, final_datetime: `${turn.date}T${turn.final_hour}`, doctor_fullname: `${doc.doctor.last_name}, ${doc.doctor.name}`, doctor_email: doc.doctor.email, turn_id: turn.id, turn_status: turn.status, specialties: doc.specialties.map(spe => { return spe.name }), title: doc.doctor.last_name, start: `${turn.date}T${turn.start_time}`, end: `${turn.date}T${turn.final_hour}`, color: color });
             });
-            handleLogout();
-        }
-    }, [update_info]);
+        });
+
+        setEvents(arrayEvents);
+    }
 
     if (!isLoggedIn()) {
         return <Redirect to='/login'></Redirect>
@@ -74,41 +134,6 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
         history.push('/login');
     }
 
-    const onChangeAdmin = e => {
-        setFormDataAdmin({ ...formDataAdmin, [e.target.name]: e.target.value });
-    }
-
-    const onSubmitAdmin = e => {
-        e.preventDefault();
-        console.log(formDataAdmin);
-        if (formDataAdmin.email.length <= 0) {
-            formDataAdmin.email = user.email;
-        }
-        adminUpdateInfo(formDataAdmin);
-
-    }
-
-    const onFileChange = event => {
-        setSelectedFile(event.target.files[0]);
-    };
-
-    const onFileUpload = async () => {
-        try {
-            const formData = new FormData();
-            formData.append("avatar", selectedFile, selectedFile.name);
-            uploadAvatar(formData);
-            setSelectedFile(null);
-            setChooseFile(false);
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    const thisFileUpload = () => {
-        document.getElementById("avatar").click();
-        setChooseFile(true);
-    }
-
     const handleSidenavToggle = () => {
         if (sidenavToggled) {
             setSidenavToggled(false);
@@ -117,12 +142,66 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
         }
     }
 
+    const handleEventClick = (clickInfo) => {
+        console.log(clickInfo.event);
+        const { doctor_id, doctor_email, doctor_fullname, turn_id, turn_status, start_datetime, final_datetime, specialties } = clickInfo.event._def.extendedProps;
+        let eventValues = {
+            doctor_id, doctor_email, doctor_fullname, turn_id, turn_status, start_datetime, final_datetime, specialties
+        }
+        setAppointment(eventValues);
+        $("#staticNewAppointment").modal('show');
+    }
+
+    const handlePatients = e => {
+        const { value } = e;
+        setPatientSelected({ patient_id: value });
+    }
+
+    const selectPatients = () => {
+        const list = []
+        patients.forEach(p => {
+            list.push({ label: `${p.last_name}, ${p.name}`, value: p.id });
+        });
+        return list;
+    }
+
+    const handleSpecialities = e => {
+        const { value } = e;
+        setSpecialitySelected({ specialty: value });
+    }
+
+    const selectSpecialities = () => {
+        const list = []
+        appointment.specialties.forEach(p => {
+            list.push({ label: p, value: p });
+        });
+        return list;
+    }
+
+    const onChange = e => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    const onSubmit = e => {
+        e.preventDefault();
+        formData.specialty = specialitySelected.specialty;
+        formData.patient_id = patientSelected.patient_id;
+        formData.payment_type = 'EFECTIVO';
+        
+        if (formData.specialty && formData.patient_id) {
+
+        } else {
+            setFormError("Rellene los campos obligatorios");
+        }
+        console.log(formData);
+    }
+
     return (
         <>
             <div className={sidenavToggled ? "nav-fixed sidenav-toggled" : "nav-fixed"}>
                 <nav className="topnav navbar navbar-expand shadow navbar-light bg-white" id="sidenavAccordion">
                     <Link className="navbar-brand active" to='/perfil'>Qurasalud</Link>
-                    <button onClick={()=>{handleSidenavToggle()}} className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+                    <button onClick={() => { handleSidenavToggle() }} className="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
                     <form className="form-inline mr-auto d-none d-md-block">
                         <div className="input-group input-group-joined input-group-solid">
                             <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
@@ -154,8 +233,8 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
                             <div className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownAlerts">
                                 <h6 className="dropdown-header dropdown-notifications-header">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-bell mr-2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                  Alerts Center
-              </h6>
+                          Alerts Center
+                      </h6>
                                 <a className="dropdown-item dropdown-notifications-item" href="#!">
                                     <div className="dropdown-notifications-item-icon bg-warning"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
                                     <div className="dropdown-notifications-item-content">
@@ -192,8 +271,8 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
                             <div className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownMessages">
                                 <h6 className="dropdown-header dropdown-notifications-header">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-mail mr-2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                  Message Center
-              </h6>
+                          Message Center
+                      </h6>
                                 <a className="dropdown-item dropdown-notifications-item" href="#!">
                                     <img className="dropdown-notifications-item-img" src="https://source.unsplash.com/vTL_qy03D1I/60x60" />
                                     <div className="dropdown-notifications-item-content">
@@ -224,12 +303,12 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
                                 <div className="dropdown-divider"></div>
                                 <Link className="dropdown-item" >
                                     <div className="dropdown-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
-                                Cuenta
-                            </Link>
+                                        Cuenta
+                                    </Link>
                                 <button className="dropdown-item" onClick={() => { handleLogout() }}>
                                     <div className="dropdown-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div>
-                  Salir
-              </button>
+                          Salir
+                      </button>
                             </div>
                         </li>
                     </ul>
@@ -237,75 +316,46 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
 
                 <div id="layoutSidenav">
                     <div id="layoutSidenav_nav">
-
-                        <SidenavMenu />
-
+                        <SidenavMenu></SidenavMenu>
                     </div>
 
                     <div id="layoutSidenav_content">
 
                         <main>
-                            <header className="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
-                                <div className="container-fluid">
-                                    <div className="page-header-content">
-                                        <div className="row align-items-center justify-content-between pt-3">
-                                            <div className="col-auto mb-3">
-                                                <h1 className="page-header-title">
-                                                    <div className="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" stroke-linecap="round" strokeLinejoin="round" className="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                                        Cuenta - Perfil
-                                    </h1>
+                            <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+                                <div class="container">
+                                    <div class="page-header-content pt-4">
+                                        <div class="row align-items-center justify-content-between">
+                                            <div class="col-auto mt-4">
+                                                <h1 class="page-header-title">
+                                                    <div class="page-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layout"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></div>
+                                            Citas
+                                        </h1>
+                                                <div class="page-header-subtitle">Mantenimiento de citas</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </header>
-                            <div className="container mt-4">
-                                <nav className="nav nav-borders">
-                                    <Link className="nav-link ml-0" to='/perfil'>Perfil</Link>
-                                </nav>
-                                <hr className="mt-0 mb-4" />
-                                <div className="row">
-                                    <div className="col-xl-4">
-                                        <div className="card">
-                                            <div className="card-header">Foto de perfil</div>
-                                            <div className="card-body text-center">
-                                                <img className="img-account-profile rounded-circle mb-2" src={localStorage.getItem('AVATAR')} alt="" />
-                                                {
-                                                    selectedFile ? <div className="small font-italic mb-4"> {selectedFile.name} </div> : <div className="small font-italic text-muted mb-4">JPG o PNG no mayor a 5 MB</div>
-                                                }
-                                                <input type="file" id="avatar" style={{ display: "none" }} onChange={onFileChange} />
-                                                {
-                                                    chooseFile ? <> <div className="btn-group"><button class="btn btn-primary" type="button" onClick={() => { onFileUpload() }}>Guardar</button><button class="btn btn-light" type="button" onClick={() => { setChooseFile(false); setSelectedFile(null) }}>Cancelar</button></div> </> : <button class="btn btn-primary" type="button" onClick={() => { thisFileUpload() }}>Escoger imagen</button>
-                                                }
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="col-xl-8">
-                                        <div className="card mb-4">
-                                            <div className="card-header">Detalles de la cuenta</div>
-                                            <div className="card-body">
-                                                {
-                                                    editInfo ? <form onSubmit={onSubmitAdmin}>
-                                                        <div className="form-group">
-                                                            <label className="small mb-1" htmlFor="email">Correo electrónico</label>
-                                                            <input type="email" className="form-control" id="email" name="email" placeholder="Correo electrónico del adminitrador" onChange={onChangeAdmin} required />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label className="small mb-1" htmlFor="password">Nueva Contraseña</label>
-                                                            <input type="password" className="form-control" id="password" name="password" placeholder="Nueva contraseña del administrador" onChange={onChangeAdmin} required />
-                                                        </div>
-                                                        <div className="btn-group"><button className="btn btn-primary" type="submit">Guardar</button><button className="btn btn-light" type="button" onClick={() => { setEditInfo(false) }}>Cancelar</button></div>
-                                                    </form> : <form>
-                                                            <div className="form-group">
-                                                                <label className="small mb-1" htmlFor="email">Correo electrónico</label>
-                                                                <input className="form-control" id="email" name="email" type="email" defaultValue={user.email} disabled />
-                                                            </div>
-                                                            <button className="btn btn-primary" type="button" onClick={() => { setEditInfo(true) }}>Editar</button>
-                                                        </form>
-                                                }
-                                            </div>
-                                        </div>
+                            <div class="container mt-n10">
+                                <div className="card mb-4 card-waves">
+                                    <div className="card-header">Reservar cita</div>
+                                    <div className="card-body">
+                                        <FullCalendar
+                                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                            headerToolbar={{
+                                                left: 'prev,next today',
+                                                center: 'title',
+                                                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                                            }}
+                                            locale={es}
+                                            initialView="dayGridMonth"
+                                            selectable={true}
+                                            editable={true}
+                                            selectMirror={true}
+                                            eventClick={handleEventClick}
+                                            events={events}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -315,15 +365,63 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
 
                 </div>
             </div>
-            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal fade" id="staticNewAppointment" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalCenterTitle">Cambio de información como administrador</h5>
+                            <h5 class="modal-title" id="staticBackdropLabel">Registrar una cita</h5>
                             <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                         </div>
-                        <div class="modal-body">Sus datos han sido cambiados satisfactoriamente, por favor vuelva a iniciar sesión.</div>
-                        <div class="modal-footer"><button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button></div>
+                        <div class="modal-body">
+                            {
+                                appointment.turn_status === 1 ? <form onSubmit={onSubmit}>
+                                    <div className="form-row">
+                                        <div className="col-md-12">
+                                            <div className="form-group">
+                                                <label htmlFor="">Razón de la consulta*</label>
+                                                <input type="text" className="form-control" id="reason_consultation" name="reason_consultation" onChange={onChange} required />
+                                                <label htmlFor="">Información adicional</label>
+                                                <textarea className="form-control" id="Additional_Information" name="Additional_Information" onChange={onChange} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="col-md-6">
+                                            <div className="form-group">
+                                                <label htmlFor="">Paciente*</label>
+                                                <Select id="patient_id" name="patient_id" options={selectPatients()} onChange={handlePatients} />
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <div className="form-group">
+                                                <label htmlFor="">Especialidad*</label>
+                                                <Select id="specialty" name="specialty" options={selectSpecialities()} onChange={handleSpecialities} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="col-md-6">
+                                            <label>Monto</label>
+                                            <input type="text" className="form-control" disabled id="amount" name="amount" onChange={onChange} />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label>Tipo de pago</label>
+                                            <input type="text" className="form-control" disabled id="payment_type" name="payment_type" defaultValue="EFECTIVO" />
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="col-md-12">
+                                            {
+                                                formError ? <div class="alert alert-warning mt-2" role="alert"> {formError} </div> : <></>
+                                            }
+                                            <div className="btn-group mt-2">
+                                                <button type="submit" className="btn btn-primary" >Reservar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form> : <div class="alert alert-pink" role="alert">La cita ya está ocupada.</div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -331,4 +429,4 @@ const APerfil = ({ history, userLogout, adminUpdateInfo, downladAvatar, uploadAv
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(APerfil);
+export default connect(mapStateToProps, mapDispatchToProps)(ANewMedicalAppoHist);
